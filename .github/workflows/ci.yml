@@ -45,7 +45,7 @@ jobs:
         cache: true
 
     - name: Install golangci-lint
-      uses: golangci/golangci-lint-action@v3
+      uses: golangci/golangci-lint-action@v7
       with:
         version: latest
         args: --timeout=5m --issues-exit-code=2
