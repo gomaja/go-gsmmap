@@ -1,0 +1,54 @@
+# Options for analysis running
+run:
+  # Default concurrency is a available CPU number
+  concurrency: 4
+  # Timeout for analysis, e.g. 30s, 5m, default is 1m
+  timeout: 5m
+
+# Output configuration options
+output:
+  # Format: colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
+  format: colored-line-number
+  # Print lines of code with issue, default is true
+  print-issued-lines: true
+  # Print linter name in the end of issue text, default is true
+  print-linter-name: true
+
+# All available settings of specific linters
+linters-settings:
+  errcheck:
+    # Report about not checking of errors in type assertions: `a := b.(MyStruct)`.
+    # Such cases aren't reported by default.
+    check-type-assertions: true
+  govet:
+    # Report about shadowed variables
+    check-shadowing: true
+  gocyclo:
+    # Minimal code complexity to report, 30 by default
+    min-complexity: 15
+  dupl:
+    # Tokens count to trigger issue, 150 by default
+    threshold: 100
+  goconst:
+    # Minimal length of string constant, 3 by default
+    min-len: 3
+    # Minimal occurrences count to trigger, 3 by default
+    min-occurrences: 3
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    - gocyclo
+    - gosec
+    - gofmt
+    - misspell
+  disable:
+    - wsl # Too strict whitespace rules
+    - lll # Line length limit
+  fast: false
