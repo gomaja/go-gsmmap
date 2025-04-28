@@ -1,0 +1,6 @@
+github.com/fkgi/sms v1.0.0 h1:1/V7QOrZ8kHzMzLg3R7OSghgLo4aWkAxdKOquZQ2xJk=
+github.com/fkgi/sms v1.0.0/go.mod h1:amtK5QGCLdNCGvEEAoxYLO4rSghd6b9BiWXxC6hJ3d4=
+github.com/fkgi/teldata v1.0.0 h1:Bgy0twKrg4DQ+STqXOnOLtA6V6p5u1TQ/XCGQRjWIF0=
+github.com/fkgi/teldata v1.0.0/go.mod h1:9XoIGosmpDSHZXUk0XzHWZS7y1rSQanhXGjmJmaKSFo=
+github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
+github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
