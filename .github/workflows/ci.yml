@@ -15,41 +15,41 @@ jobs:
         go-version: ['1.22', '1.23', '1.24']
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ matrix.go-version }}
-        cache: true
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
 
-    - name: Get dependencies
-      run: go mod download
+      - name: Get dependencies
+        run: go mod download
 
-    - name: Run tests
-      run: go test -v -race ./...
+      - name: Run tests
+        run: go test -v -race ./...
 
   lint:
     name: Lint
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.24'
-        cache: true
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'  # Use Go 1.23 for linting as it's more stable with current golangci-lint
+          cache: true
 
-    - name: Install golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: latest
-        args: --timeout=5m --issues-exit-code=0
-        install-mode: binary
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        only-new-issues: false
-        skip-cache: false
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.56.2  # Specify a fixed version rather than 'latest'
+          args: --timeout=5m --issues-exit-code=0
+          install-mode: binary
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          only-new-issues: false
+          skip-cache: false
