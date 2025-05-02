@@ -4,6 +4,13 @@ run:
   concurrency: 4
   # Timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 5m
+  # Skip directories
+  skip-dirs:
+    - vendor
+    - .git
+    - .github
+  # Allow issues to be fixed automatically
+  allow-parallel-runners: true
 
 # Output configuration options
 output:
@@ -13,6 +20,8 @@ output:
   print-issued-lines: true
   # Print linter name in the end of issue text, default is true
   print-linter-name: true
+  # Sort results by severity
+  sort-results: true
 
 # All available settings of specific linters
 linters-settings:
@@ -34,6 +43,15 @@ linters-settings:
     min-len: 3
     # Minimal occurrences count to trigger, 3 by default
     min-occurrences: 3
+  gosec:
+    # Exclude generated files
+    exclude-generated: true
+  gofmt:
+    # Simplify code: gofmt with `-s` option
+    simplify: true
+  staticcheck:
+    # Select specific staticcheck analyzers
+    checks: ["all"]
 
 linters:
   enable:
@@ -48,7 +66,24 @@ linters:
     - gosec
     - gofmt
     - misspell
+    - revive      # A more configurable replacement for golint
+    - goimports   # Formats imports and adds missing ones
+    - unconvert   # Remove unnecessary type conversions
   disable:
     - wsl # Too strict whitespace rules
     - lll # Line length limit
   fast: false
+
+# Issues configuration
+issues:
+  # Exclude some linters from running on tests files
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - dupl
+        - gosec
+  # Maximum issues count per one linter
+  max-issues-per-linter: 0
+  # Maximum count of issues with the same text
+  max-same-issues: 0
