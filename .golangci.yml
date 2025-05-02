@@ -2,7 +2,7 @@
 # See https://golangci-lint.run/usage/configuration/ for details
 
 # Required version field
-version: v1
+version: v2
 
 # Options for analysis running
 run:
