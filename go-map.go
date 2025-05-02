@@ -27,3 +27,10 @@ type Fsm struct {
 
 	MoreMessagesToSend bool
 }
+
+type MoFsm struct {
+	ServiceCentreAddressDA string
+	MSISDN                 string
+
+	TPDU sms.Submit
+}

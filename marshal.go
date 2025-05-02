@@ -111,3 +111,38 @@ func convertFsmToMTForwardSMArg(fsm *Fsm) asn1mapmodel.MTForwardSMArg {
 
 	return mtFsm
 }
+
+func (mofsm *MoFsm) Marshal() ([]byte, error) {
+	// Create MOForwardSMArg
+	moFsm := convertMoFsmToMOForwardSMArg(mofsm)
+
+	// Encode to ASN.1 DER format
+	dataIE, err := asn1.Marshal(moFsm)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ASN.1 CreateMoForwardSM: %v", err)
+	}
+
+	// return complete IE, tag length and value
+	return dataIE, nil
+}
+
+func convertMoFsmToMOForwardSMArg(mofsm *MoFsm) asn1mapmodel.MOForwardSMArg {
+	var MO asn1mapmodel.MOForwardSMArg
+
+	serviceCentreAddressDATBCDbytes, _ := utils.EncodeTBCDDigits(mofsm.ServiceCentreAddressDA)
+
+	// prepare serviceCenterAddress
+	encodedServiceCentreAddressDA := asn1mapmodel.EncodeAddressString(asn1mapmodel.ExtensionNo, asn1mapmodel.AddressNatureInternational, asn1mapmodel.NumberingPlanISDN, serviceCentreAddressDATBCDbytes)
+
+	msisdnBytes, _ := utils.EncodeTBCDDigits(mofsm.MSISDN)
+
+	// prepare MSISDN
+	msisdn := asn1mapmodel.EncodeAddressString(asn1mapmodel.ExtensionNo, asn1mapmodel.AddressNatureInternational, asn1mapmodel.NumberingPlanISDN, msisdnBytes)
+
+	// fill the fields
+	MO.ServiceCentreAddressDA = encodedServiceCentreAddressDA
+	MO.MSISDN = msisdn
+	MO.SmRPUI = mofsm.TPDU.MarshalTP()
+
+	return MO
+}

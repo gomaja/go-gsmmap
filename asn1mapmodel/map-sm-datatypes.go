@@ -118,11 +118,53 @@ type MTForwardSMArg struct {
 	//SmsOverIPOnlyIndicator *asn1.RawValue         `asn1:"tag:0,optional"` // smsOverIP-OnlyIndicator - optional, Context Specific
 }
 
+// MTForwardSMRes defines the ASN.1 SEQUENCE structure with optional fields
+type MTForwardSMRes struct {
+	//SmRPUI            *SignalInfo        `asn1:"optional,tag:0"`
+	//ExtensionContainer *ExtensionContainer `asn1:"optional,tag:1"`
+}
+
 func (fsm *MTForwardSMArg) GetImsiString() string {
 	return utils.DecodeTBCDDigits(fsm.IMSI)
 }
 
 func (fsm *MTForwardSMArg) GetServiceCentreAddressOAString() string {
 	_, _, _, Digits := DecodeAddressString(fsm.ServiceCentreAddressOA)
+	return utils.DecodeTBCDDigits(Digits)
+}
+
+// MOForwardSMArg defines the ASN.1 SEQUENCE structure with optional fields
+type MOForwardSMArg struct {
+	// SMRPDA defines the ASN.1 CHOICE structure for SM-RP-DA
+	IMSI                   IMSI          `asn1:"tag:0,optional"` // [0] IMSI
+	LMSI                   LMSI          `asn1:"tag:1,optional"` // [1] LMSI
+	ServiceCentreAddressDA AddressString `asn1:"tag:4,optional"` // [4] AddressString
+	NoSMRPDA               asn1.RawValue `asn1:"tag:5,optional"` // [5] NULL
+
+	// SMRPOA defines the ASN.1 CHOICE structure for SM-RP-OA
+	MSISDN                 ISDNAddressString `asn1:"tag:2,optional"` // [2] ISDN-AddressString
+	ServiceCentreAddressOA AddressString     `asn1:"tag:4,optional"` // [4] AddressString
+	NoSMRPOA               asn1.RawValue     `asn1:"tag:5,optional"` // [5] NULL
+
+	//
+	SmRPUI SignalInfo
+
+	//ExtensionContainer *ExtensionContainer `asn1:"optional,tag:3"`
+	//IMSI               *IMSI               `asn1:"optional,tag:4"`
+}
+
+// MOForwardSMRes defines the ASN.1 SEQUENCE structure with optional fields
+type MOForwardSMRes struct {
+	//SmRPUI             *SignalInfo         `asn1:"optional,tag:0"`
+	//ExtensionContainer *ExtensionContainer `asn1:"optional,tag:1"`
+}
+
+func (mofsm *MOForwardSMArg) GetServiceCentreAddressDAString() string {
+	_, _, _, Digits := DecodeAddressString(mofsm.ServiceCentreAddressDA)
+	return utils.DecodeTBCDDigits(Digits)
+}
+
+func (mofsm *MOForwardSMArg) GetMsisdnString() string {
+	_, _, _, Digits := DecodeAddressString(mofsm.MSISDN)
 	return utils.DecodeTBCDDigits(Digits)
 }
