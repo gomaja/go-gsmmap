@@ -1,9 +1,3 @@
-# This is the configuration file for golangci-lint
-# See https://golangci-lint.run/usage/configuration/ for details
-
-# Required version field
-version: v2
-
 # Options for analysis running
 run:
   # Default concurrency is a available CPU number
