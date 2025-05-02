@@ -48,4 +48,12 @@ jobs:
       uses: golangci/golangci-lint-action@v7
       with:
         version: latest
-        args: --timeout=5m --issues-exit-code=0 # exit code to change pipe-line success status for lint
+        args: --timeout=5m --issues-exit-code=0
+        install-mode: binary
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        verify: true
+        only-new-issues: false
+        skip-cache: false
+        skip-save-cache: false
+        problem-matchers: false
+        cache-invalidation-interval: 7
