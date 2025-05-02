@@ -60,3 +60,21 @@ func ParseFsm(dataIE []byte) (*Fsm, []byte, error) {
 
 	return &fsm, rest, nil
 }
+
+// ParseMoFsm take a complete bytes IE
+func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
+	var MO asn1mapmodel.MOForwardSMArg
+
+	rest, err := asn1.Unmarshal(dataIE, &MO)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM: %v", err)
+	}
+
+	var mofsm MoFsm
+	mofsm.ServiceCentreAddressDA = MO.GetServiceCentreAddressDAString()
+	mofsm.MSISDN = MO.GetMsisdnString()
+
+	mofsm.TPDU, _ = sms.UnmarshalSubmit(MO.SmRPUI)
+
+	return &mofsm, rest, nil
+}
