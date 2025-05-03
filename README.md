@@ -91,7 +91,11 @@ import (
 func main() {
 	imsi := "234100080813836"
 	serviceCentreAddressOA := "9613488888"
-	TPOA, _ := teldata.ParseTBCD("96170111474")
+	TPOA, err := teldata.ParseTBCD("96170111474")
+	if err != nil {
+		fmt.Printf("Error parsing TPOA: %v\n", err)
+		return
+	}
 	AddressOA := sms.Address{
 		TON:  sms.TypeInternational,
 		NPI:  sms.PlanISDNTelephone,
