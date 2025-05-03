@@ -95,16 +95,9 @@ func (riSmRes *RoutingInfoForSMRes) GetNetworkNodeNumberString() string {
 
 // MTForwardSMArg defines the ASN.1 SEQUENCE structure with optional fields and Extensibility
 type MTForwardSMArg struct {
-	// SMRPDA defines the ASN.1 CHOICE structure for SM-RP-DA
-	IMSI                   IMSI          `asn1:"tag:0,optional"` // [0] IMSI
-	LMSI                   LMSI          `asn1:"tag:1,optional"` // [1] LMSI
-	ServiceCentreAddressDA AddressString `asn1:"tag:4,optional"` // [4] AddressString
-	NoSMRPDA               asn1.RawValue `asn1:"tag:5,optional"` // [5] NULL
+	SMRPDA asn1.RawValue
 
-	// SMRPOA defines the ASN.1 CHOICE structure for SM-RP-OA
-	MSISDN                 ISDNAddressString `asn1:"tag:2,optional"` // [2] ISDN-AddressString
-	ServiceCentreAddressOA AddressString     `asn1:"tag:4,optional"` // [4] AddressString
-	NoSMRPOA               asn1.RawValue     `asn1:"tag:5,optional"` // [5] NULL
+	SMRPOA asn1.RawValue
 
 	//
 	SmRPUI SignalInfo // sm-RP-UI
@@ -124,27 +117,11 @@ type MTForwardSMRes struct {
 	//ExtensionContainer *ExtensionContainer `asn1:"optional,tag:1"`
 }
 
-func (fsm *MTForwardSMArg) GetImsiString() string {
-	return utils.DecodeTBCDDigits(fsm.IMSI)
-}
-
-func (fsm *MTForwardSMArg) GetServiceCentreAddressOAString() string {
-	_, _, _, Digits := DecodeAddressString(fsm.ServiceCentreAddressOA)
-	return utils.DecodeTBCDDigits(Digits)
-}
-
 // MOForwardSMArg defines the ASN.1 SEQUENCE structure with optional fields
 type MOForwardSMArg struct {
-	// SMRPDA defines the ASN.1 CHOICE structure for SM-RP-DA
-	IMSI                   IMSI          `asn1:"tag:0,optional"` // [0] IMSI
-	LMSI                   LMSI          `asn1:"tag:1,optional"` // [1] LMSI
-	ServiceCentreAddressDA AddressString `asn1:"tag:4,optional"` // [4] AddressString
-	NoSMRPDA               asn1.RawValue `asn1:"tag:5,optional"` // [5] NULL
+	SMRPDA asn1.RawValue
 
-	// SMRPOA defines the ASN.1 CHOICE structure for SM-RP-OA
-	MSISDN                 ISDNAddressString `asn1:"tag:2,optional"` // [2] ISDN-AddressString
-	ServiceCentreAddressOA AddressString     `asn1:"tag:4,optional"` // [4] AddressString
-	NoSMRPOA               asn1.RawValue     `asn1:"tag:5,optional"` // [5] NULL
+	SMRPOA asn1.RawValue
 
 	//
 	SmRPUI SignalInfo
@@ -159,12 +136,36 @@ type MOForwardSMRes struct {
 	//ExtensionContainer *ExtensionContainer `asn1:"optional,tag:1"`
 }
 
-func (mofsm *MOForwardSMArg) GetServiceCentreAddressDAString() string {
-	_, _, _, Digits := DecodeAddressString(mofsm.ServiceCentreAddressDA)
+type SMRPDA struct {
+	// SMRPDA defines the ASN.1 CHOICE structure for SM-RP-DA
+	IMSI                   IMSI          `asn1:"tag:0,optional"` // [0] IMSI
+	LMSI                   LMSI          `asn1:"tag:1,optional"` // [1] LMSI
+	ServiceCentreAddressDA AddressString `asn1:"tag:4,optional"` // [4] AddressString
+	NoSMRPDA               asn1.RawValue `asn1:"tag:5,optional"` // [5] NULL
+}
+
+func (smRpDa *SMRPDA) GetImsiString() string {
+	return utils.DecodeTBCDDigits(smRpDa.IMSI)
+}
+
+func (smRpDa *SMRPDA) GetServiceCentreAddressDAString() string {
+	_, _, _, Digits := DecodeAddressString(smRpDa.ServiceCentreAddressDA)
 	return utils.DecodeTBCDDigits(Digits)
 }
 
-func (mofsm *MOForwardSMArg) GetMsisdnString() string {
-	_, _, _, Digits := DecodeAddressString(mofsm.MSISDN)
+type SMRPOA struct {
+	// SMRPOA defines the ASN.1 CHOICE structure for SM-RP-OA
+	MSISDN                 ISDNAddressString `asn1:"tag:2,optional"` // [2] ISDN-AddressString
+	ServiceCentreAddressOA AddressString     `asn1:"tag:4,optional"` // [4] AddressString
+	NoSMRPOA               asn1.RawValue     `asn1:"tag:5,optional"` // [5] NULL
+}
+
+func (smRpOa *SMRPOA) GetMsisdnString() string {
+	_, _, _, Digits := DecodeAddressString(smRpOa.MSISDN)
+	return utils.DecodeTBCDDigits(Digits)
+}
+
+func (smRpOa *SMRPOA) GetServiceCentreAddressOAString() string {
+	_, _, _, Digits := DecodeAddressString(smRpOa.ServiceCentreAddressOA)
 	return utils.DecodeTBCDDigits(Digits)
 }

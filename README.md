@@ -27,41 +27,42 @@ go get github.com/gomaja/go-gsmmap
 package main
 
 import (
-    "fmt"
-    "github.com/gomaja/go-gsmmap"
+	"fmt"
+
+	"github.com/gomaja/go-gsmmap"
 )
 
 func main() {
-    // Create a new SRI-for-SM request
-    sriSm := &gsmmap.SriSm{
-        MSISDN:               "123456789",
-        SmRpPri:              true,
-        ServiceCentreAddress: "987654321",
-    }
+	// Create a new SRI-for-SM request
+	sriSm := &gsmmap.SriSm{
+		MSISDN:               "123456789",
+		SmRpPri:              true,
+		ServiceCentreAddress: "987654321",
+	}
 
-    // Marshal to ASN.1 DER format
-    data, err := sriSm.Marshal()
-    if err != nil {
-        fmt.Printf("Error marshaling SRI-for-SM: %v\n", err)
-        return
-    }
+	// Marshal to ASN.1 DER format
+	data, err := sriSm.Marshal()
+	if err != nil {
+		fmt.Printf("Error marshaling SRI-for-SM: %v\n", err)
+		return
+	}
 
-    // Use the marshaled data in your TCAP/SCCP stack
-    // ...
+	// Use the marshaled data in your TCAP/SCCP stack
+	// ...
 
-    // Parse an incoming SRI-for-SM response
-    sriSmResp, _, err := gsmmap.ParseSriSmResp(responseData)
-    if err != nil {
-        fmt.Printf("Error parsing SRI-for-SM response: %v\n", err)
-        return
-    }
+	// Parse an incoming SRI-for-SM response
+	sriSmResp, _, err := gsmmap.ParseSriSmResp(responseData)
+	if err != nil {
+		fmt.Printf("Error parsing SRI-for-SM response: %v\n", err)
+		return
+	}
 
-    fmt.Printf("IMSI: %s\n", sriSmResp.IMSI)
-    fmt.Printf("MSC: %s\n", sriSmResp.LocationInfoWithLMSI.NetworkNodeNumber)
+	fmt.Printf("IMSI: %s\n", sriSmResp.IMSI)
+	fmt.Printf("MSC: %s\n", sriSmResp.LocationInfoWithLMSI.NetworkNodeNumber)
 }
 ```
 
-### Forward Short Message (MT-ForwardSM)
+### Mt Forward Short Message (MT-ForwardSM)
 
 ```go
 package main
@@ -87,7 +88,7 @@ func main() {
     }
 
     // Create a Forward Short Message request
-    fsm := &gsmmap.Fsm{
+    mtFsm := &gsmmap.MtFsm{
         IMSI:                   "123456789012345",
         ServiceCentreAddressOA: "987654321",
         TPDU:                   deliver,
@@ -95,7 +96,7 @@ func main() {
     }
 
     // Marshal to ASN.1 DER format
-    data, err := fsm.Marshal()
+    data, err := mtFsm.Marshal()
     if err != nil {
         fmt.Printf("Error marshaling MT-ForwardSM: %v\n", err)
         return
@@ -110,13 +111,14 @@ func main() {
 
 ### MAP Messages
 
-| MAP Message                                           | Abbreviation     | Reference                                | Supported |
-|-------------------------------------------------------|------------------|------------------------------------------|-----------|
-| Invoke Send Routing Info For Short Message             | SRI-for-SM-Req   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅        |
-| Return Result Last Send Routing Info For Short Message | SRI-SM-Resp      | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅        |
-| Invoke Forward Short Message                           | MT-ForwardSM     | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅        |
-| Return Result Last Invoke Forward Short Message        | ReturnResultLast | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅        |
-| Begin otid (concatenated message preparation)          | Begin-otid       | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅        |
+| MAP Message                                            | Abbreviation     | Reference                                | Supported |
+|--------------------------------------------------------|------------------|------------------------------------------|-----------|
+| Invoke Send Routing Info For Short Message             | SRI-for-SM-Req   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Return Result Last Send Routing Info For Short Message | SRI-SM-Resp      | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke Mt Forward Short Message                        | MT-ForwardSM     | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke MO Forward Short Message                        | MO-ForwardSM     | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Return Result Last Invoke Forward Short Message        | ReturnResultLast | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Begin otid (concatenated message preparation)          | Begin-otid       | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
 
 ## API Documentation
 
@@ -125,7 +127,8 @@ func main() {
 - **SriSm**: Structure for Send Routing Info for Short Message requests
 - **SriSmResp**: Structure for Send Routing Info for Short Message responses
 - **LocationInfoWithLMSI**: Structure containing location information
-- **Fsm**: Structure for Forward Short Message requests
+- **MtFsm**: Structure for Forward Short Message requests
+- **MoFsm**: Structure for Forward Short Message requests
 
 ### Marshal/Parse Functions
 
@@ -133,8 +136,10 @@ func main() {
 - **ParseSriSm()**: Parses ASN.1 DER data into SriSm structure
 - **SriSmResp.Marshal()**: Converts SriSmResp to ASN.1 DER format
 - **ParseSriSmResp()**: Parses ASN.1 DER data into SriSmResp structure
-- **Fsm.Marshal()**: Converts Fsm to ASN.1 DER format
-- **ParseFsm()**: Parses ASN.1 DER data into Fsm structure
+- **MtFsm.Marshal()**: Converts MtFsm to ASN.1 DER format
+- **ParseMtFsm()**: Parses ASN.1 DER data into MtFsm structure
+- **MoFsm.Marshal()**: Converts MoFsm to ASN.1 DER format
+- **ParseMoFsm()**: Parses ASN.1 DER data into MoFsm structure
 
 ## Dependencies
 
