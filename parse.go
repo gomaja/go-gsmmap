@@ -40,41 +40,41 @@ func ParseSriSmResp(dataIE []byte) (*SriSmResp, []byte, error) {
 	return &sriSmResp, rest, nil
 }
 
-// ParseFsm take a complete bytes IE
-func ParseFsm(dataIE []byte) (*Fsm, []byte, error) {
-	var mtFsm asn1mapmodel.MTForwardSMArg
+// ParseMtFsm take a complete bytes IE
+func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
+	var mtFsmArg asn1mapmodel.MTForwardSMArg
 
-	rest, err := asn1.Unmarshal(dataIE, &mtFsm)
+	rest, err := asn1.Unmarshal(dataIE, &mtFsmArg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateForwardSM: %v", err)
 	}
 
-	var fsm Fsm
-	fsm.IMSI = mtFsm.GetImsiString()
-	fsm.ServiceCentreAddressOA = mtFsm.GetServiceCentreAddressOAString()
-	fsm.TPDU, _ = sms.UnmarshalDeliver(mtFsm.SmRPUI)
+	var mtFsm MtFsm
+	mtFsm.IMSI = mtFsmArg.GetImsiString()
+	mtFsm.ServiceCentreAddressOA = mtFsmArg.GetServiceCentreAddressOAString()
+	mtFsm.TPDU, _ = sms.UnmarshalDeliver(mtFsmArg.SmRPUI)
 
-	if mtFsm.MoreMessagesToSend.Tag == asn1.TagNull {
-		fsm.MoreMessagesToSend = true
+	if mtFsmArg.MoreMessagesToSend.Tag == asn1.TagNull {
+		mtFsm.MoreMessagesToSend = true
 	}
 
-	return &fsm, rest, nil
+	return &mtFsm, rest, nil
 }
 
 // ParseMoFsm take a complete bytes IE
 func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
-	var MO asn1mapmodel.MOForwardSMArg
+	var moFsmArg asn1mapmodel.MOForwardSMArg
 
-	rest, err := asn1.Unmarshal(dataIE, &MO)
+	rest, err := asn1.Unmarshal(dataIE, &moFsmArg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM: %v", err)
 	}
 
-	var mofsm MoFsm
-	mofsm.ServiceCentreAddressDA = MO.GetServiceCentreAddressDAString()
-	mofsm.MSISDN = MO.GetMsisdnString()
+	var moFsm MoFsm
+	moFsm.ServiceCentreAddressDA = moFsmArg.GetServiceCentreAddressDAString()
+	moFsm.MSISDN = moFsmArg.GetMsisdnString()
 
-	mofsm.TPDU, _ = sms.UnmarshalSubmit(MO.SmRPUI)
+	moFsm.TPDU, _ = sms.UnmarshalSubmit(moFsmArg.SmRPUI)
 
-	return &mofsm, rest, nil
+	return &moFsm, rest, nil
 }

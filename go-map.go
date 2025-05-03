@@ -20,7 +20,7 @@ type LocationInfoWithLMSI struct {
 	// TODO: add optional fields if needed
 }
 
-type Fsm struct {
+type MtFsm struct {
 	IMSI                   string
 	ServiceCentreAddressOA string
 	TPDU                   sms.Deliver
@@ -31,6 +31,5 @@ type Fsm struct {
 type MoFsm struct {
 	ServiceCentreAddressDA string
 	MSISDN                 string
-
-	TPDU sms.Submit
+	TPDU                   sms.Submit
 }
