@@ -55,7 +55,8 @@ func main() {
 	// ...
 
 	responseData := "3015040882131068584836f3a0098107917394950862f6"
-	// Decode hex string to bytes
+	// Decode the hex string to bytes. The hex string represents an encoded SRI-for-SM response,
+	// which needs to be converted to a byte array for parsing by the ParseSriSmResp function.
 	originalBytes, err := hex.DecodeString(responseData)
 	if err != nil {
 		log.Fatalf("Failed to decode hex string: %v", err)
