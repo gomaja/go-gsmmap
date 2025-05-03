@@ -118,7 +118,7 @@ func main() {
 		IMSI:                   imsi,
 		ServiceCentreAddressOA: serviceCentreAddressOA,
 		TPDU:                   deliver,
-		MoreMessagesToSend:     true,
+		MoreMessagesToSend:     false,
 	}
 
 	// Marshal to ASN.1 DER format
