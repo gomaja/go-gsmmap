@@ -27,7 +27,9 @@ go get github.com/gomaja/go-gsmmap
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
+	"log"
 
 	"github.com/gomaja/go-gsmmap"
 )
@@ -47,11 +49,20 @@ func main() {
 		return
 	}
 
+	fmt.Printf("SRI-for-SM: %x\n", data)
+
 	// Use the marshaled data in your TCAP/SCCP stack
 	// ...
 
+	responseData := "3015040882131068584836f3a0098107917394950862f6"
+	// Decode hex string to bytes
+	originalBytes, err := hex.DecodeString(responseData)
+	if err != nil {
+		log.Fatalf("Failed to decode hex string: %v", err)
+	}
+
 	// Parse an incoming SRI-for-SM response
-	sriSmResp, _, err := gsmmap.ParseSriSmResp(responseData)
+	sriSmResp, _, err := gsmmap.ParseSriSmResp(originalBytes)
 	if err != nil {
 		fmt.Printf("Error parsing SRI-for-SM response: %v\n", err)
 		return
@@ -68,42 +79,53 @@ func main() {
 package main
 
 import (
-    "fmt"
-    "github.com/fkgi/sms"
-    "github.com/gomaja/go-gsmmap"
+	"fmt"
+	"time"
+
+	"github.com/fkgi/sms"
+	"github.com/fkgi/teldata"
+	"github.com/gomaja/go-gsmmap"
 )
 
 func main() {
-    // Create a new SMS Deliver message
-    deliver := sms.Deliver{
-        OA: sms.Address{
-            TON:  sms.TONInternational,
-            NPI:  sms.NPIISDNTelephone,
-            Addr: "123456789",
-        },
-        UD: sms.UserData{
-            DCS:  sms.DCS7BIT,
-            Data: []byte("Hello, World!"),
-        },
-    }
+	imsi := "234100080813836"
+	serviceCentreAddressOA := "9613488888"
+	TPOA, _ := teldata.ParseTBCD("96170111474")
+	AddressOA := sms.Address{
+		TON:  sms.TypeInternational,
+		NPI:  sms.PlanISDNTelephone,
+		Addr: TPOA,
+	}
 
-    // Create a Forward Short Message request
-    mtFsm := &gsmmap.MtFsm{
-        IMSI:                   "123456789012345",
-        ServiceCentreAddressOA: "987654321",
-        TPDU:                   deliver,
-        MoreMessagesToSend:     false,
-    }
+	// Create a new SMS Deliver message
+	deliver := sms.Deliver{
+		MMS:  true,
+		OA:   AddressOA,
+		PID:  byte(0),
+		DCS:  sms.GeneralDataCoding{},
+		SCTS: time.Now(),
+		UD:   sms.UserData{Text: "Hello World!"},
+	}
 
-    // Marshal to ASN.1 DER format
-    data, err := mtFsm.Marshal()
-    if err != nil {
-        fmt.Printf("Error marshaling MT-ForwardSM: %v\n", err)
-        return
-    }
+	// Create a Forward Short Message request
+	mtFsm := &gsmmap.MtFsm{
+		IMSI:                   imsi,
+		ServiceCentreAddressOA: serviceCentreAddressOA,
+		TPDU:                   deliver,
+		MoreMessagesToSend:     true,
+	}
 
-    // Use the marshaled data in your TCAP/SCCP stack
-    // ...
+	// Marshal to ASN.1 DER format
+	data, err := mtFsm.Marshal()
+	if err != nil {
+		fmt.Printf("Error marshaling MT-ForwardSM: %v\n", err)
+		return
+	}
+
+	fmt.Printf("%x\n", data)
+
+	// Use the marshaled data in your TCAP/SCCP stack
+	// ...
 }
 ```
 
