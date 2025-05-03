@@ -49,9 +49,28 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateForwardSM: %v", err)
 	}
 
+	var smRpDa asn1mapmodel.SMRPDA
+	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
+	smRpDaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: mtFsmArg.SMRPDA.FullBytes} // Tag = 16 with Constructor = 0x30
+	smRpDaBytes, _ := asn1.Marshal(smRpDaByteString)
+
+	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpDa: %v", err)
+	}
+
+	var smRpOa asn1mapmodel.SMRPOA
+	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
+	smRpOaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: mtFsmArg.SMRPOA.FullBytes} // Tag = 16 with Constructor = 0x30
+	smRpOaBytes, _ := asn1.Marshal(smRpOaByteString)
+	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
+	}
+
 	var mtFsm MtFsm
-	mtFsm.IMSI = mtFsmArg.GetImsiString()
-	mtFsm.ServiceCentreAddressOA = mtFsmArg.GetServiceCentreAddressOAString()
+	mtFsm.IMSI = smRpDa.GetImsiString()
+	mtFsm.ServiceCentreAddressOA = smRpOa.GetServiceCentreAddressOAString()
 	mtFsm.TPDU, _ = sms.UnmarshalDeliver(mtFsmArg.SmRPUI)
 
 	if mtFsmArg.MoreMessagesToSend.Tag == asn1.TagNull {
@@ -70,9 +89,28 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM: %v", err)
 	}
 
+	var smRpDa asn1mapmodel.SMRPDA
+	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
+	smRpDaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: moFsmArg.SMRPDA.FullBytes} // Tag = 16 with Constructor = 0x30
+	smRpDaBytes, _ := asn1.Marshal(smRpDaByteString)
+
+	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpDa: %v", err)
+	}
+
+	var smRpOa asn1mapmodel.SMRPOA
+	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
+	smRpOaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: moFsmArg.SMRPOA.FullBytes} // Tag = 16 with Constructor = 0x30
+	smRpOaBytes, _ := asn1.Marshal(smRpOaByteString)
+	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
+	}
+
 	var moFsm MoFsm
-	moFsm.ServiceCentreAddressDA = moFsmArg.GetServiceCentreAddressDAString()
-	moFsm.MSISDN = moFsmArg.GetMsisdnString()
+	moFsm.ServiceCentreAddressDA = smRpDa.GetServiceCentreAddressDAString()
+	moFsm.MSISDN = smRpOa.GetMsisdnString()
 
 	moFsm.TPDU, _ = sms.UnmarshalSubmit(moFsmArg.SmRPUI)
 
