@@ -76,12 +76,12 @@ func convertSriSmRespToRoutingInfoForSMRes(sriSm *SriSmResp) asn1mapmodel.Routin
 	return routingInfoResp
 }
 
-func (fsm *Fsm) Marshal() ([]byte, error) {
+func (mtFsm *MtFsm) Marshal() ([]byte, error) {
 	// Create MTForwardSMArg
-	mtFsm := convertFsmToMTForwardSMArg(fsm)
+	mtFsmArg := convertMtFsmToMTForwardSMArg(mtFsm)
 
 	// Encode to ASN.1 DER format
-	dataIE, err := asn1.Marshal(mtFsm)
+	dataIE, err := asn1.Marshal(mtFsmArg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode ASN.1 CreateForwardSM: %v", err)
 	}
@@ -90,34 +90,34 @@ func (fsm *Fsm) Marshal() ([]byte, error) {
 	return dataIE, nil
 }
 
-func convertFsmToMTForwardSMArg(fsm *Fsm) asn1mapmodel.MTForwardSMArg {
-	var mtFsm asn1mapmodel.MTForwardSMArg
+func convertMtFsmToMTForwardSMArg(mtFsm *MtFsm) asn1mapmodel.MTForwardSMArg {
+	var mtFsmArg asn1mapmodel.MTForwardSMArg
 
-	imsiTBCDbytes, _ := utils.EncodeTBCDDigits(fsm.IMSI)
+	imsiTBCDbytes, _ := utils.EncodeTBCDDigits(mtFsm.IMSI)
 
-	serviceCentreAddressOATBCDbytes, _ := utils.EncodeTBCDDigits(fsm.ServiceCentreAddressOA)
+	serviceCentreAddressOATBCDbytes, _ := utils.EncodeTBCDDigits(mtFsm.ServiceCentreAddressOA)
 
 	// prepare serviceCenterAddress
 	encodedServiceCentreAddressOA := asn1mapmodel.EncodeAddressString(asn1mapmodel.ExtensionNo, asn1mapmodel.AddressNatureInternational, asn1mapmodel.NumberingPlanISDN, serviceCentreAddressOATBCDbytes)
 
 	// fill the fields
-	mtFsm.IMSI = imsiTBCDbytes
-	mtFsm.ServiceCentreAddressOA = encodedServiceCentreAddressOA
-	mtFsm.SmRPUI = fsm.TPDU.MarshalTP()
+	mtFsmArg.IMSI = imsiTBCDbytes
+	mtFsmArg.ServiceCentreAddressOA = encodedServiceCentreAddressOA
+	mtFsmArg.SmRPUI = mtFsm.TPDU.MarshalTP()
 
-	if fsm.MoreMessagesToSend {
-		mtFsm.MoreMessagesToSend = asn1.RawValue{Class: asn1.ClassUniversal, Tag: asn1.TagNull, Bytes: []byte{}}
+	if mtFsm.MoreMessagesToSend {
+		mtFsmArg.MoreMessagesToSend = asn1.RawValue{Class: asn1.ClassUniversal, Tag: asn1.TagNull, Bytes: []byte{}}
 	}
 
-	return mtFsm
+	return mtFsmArg
 }
 
-func (mofsm *MoFsm) Marshal() ([]byte, error) {
+func (moFsm *MoFsm) Marshal() ([]byte, error) {
 	// Create MOForwardSMArg
-	moFsm := convertMoFsmToMOForwardSMArg(mofsm)
+	moFsmArg := convertMoFsmToMOForwardSMArg(moFsm)
 
 	// Encode to ASN.1 DER format
-	dataIE, err := asn1.Marshal(moFsm)
+	dataIE, err := asn1.Marshal(moFsmArg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode ASN.1 CreateMoForwardSM: %v", err)
 	}
@@ -126,23 +126,23 @@ func (mofsm *MoFsm) Marshal() ([]byte, error) {
 	return dataIE, nil
 }
 
-func convertMoFsmToMOForwardSMArg(mofsm *MoFsm) asn1mapmodel.MOForwardSMArg {
-	var MO asn1mapmodel.MOForwardSMArg
+func convertMoFsmToMOForwardSMArg(moFsm *MoFsm) asn1mapmodel.MOForwardSMArg {
+	var moFsmArg asn1mapmodel.MOForwardSMArg
 
-	serviceCentreAddressDATBCDbytes, _ := utils.EncodeTBCDDigits(mofsm.ServiceCentreAddressDA)
+	serviceCentreAddressDATBCDbytes, _ := utils.EncodeTBCDDigits(moFsm.ServiceCentreAddressDA)
 
 	// prepare serviceCenterAddress
 	encodedServiceCentreAddressDA := asn1mapmodel.EncodeAddressString(asn1mapmodel.ExtensionNo, asn1mapmodel.AddressNatureInternational, asn1mapmodel.NumberingPlanISDN, serviceCentreAddressDATBCDbytes)
 
-	msisdnBytes, _ := utils.EncodeTBCDDigits(mofsm.MSISDN)
+	msisdnBytes, _ := utils.EncodeTBCDDigits(moFsm.MSISDN)
 
 	// prepare MSISDN
 	msisdn := asn1mapmodel.EncodeAddressString(asn1mapmodel.ExtensionNo, asn1mapmodel.AddressNatureInternational, asn1mapmodel.NumberingPlanISDN, msisdnBytes)
 
 	// fill the fields
-	MO.ServiceCentreAddressDA = encodedServiceCentreAddressDA
-	MO.MSISDN = msisdn
-	MO.SmRPUI = mofsm.TPDU.MarshalTP()
+	moFsmArg.ServiceCentreAddressDA = encodedServiceCentreAddressDA
+	moFsmArg.MSISDN = msisdn
+	moFsmArg.SmRPUI = moFsm.TPDU.MarshalTP()
 
-	return MO
+	return moFsmArg
 }
