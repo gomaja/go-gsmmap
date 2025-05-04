@@ -32,7 +32,10 @@ func TestBCDEncoding(t *testing.T) {
 		})
 
 		t.Run("Bytes2Str/"+c.description, func(t *testing.T) {
-			str := DecodeTBCDDigits(c.bytes)
+			str, err := DecodeTBCDDigits(c.bytes)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			if diff := cmp.Diff(str, c.str); diff != "" {
 				t.Error(diff)

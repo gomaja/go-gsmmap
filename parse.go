@@ -18,9 +18,9 @@ func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 	}
 
 	var sriSm SriSm
-	sriSm.MSISDN = routingInfo.GetMsisdnString()
+	sriSm.MSISDN, _ = routingInfo.GetMsisdnString()
 	sriSm.SmRpPri = routingInfo.SmRpPri
-	sriSm.ServiceCentreAddress = routingInfo.GetServiceCenterAddressString()
+	sriSm.ServiceCentreAddress, _ = routingInfo.GetServiceCenterAddressString()
 
 	return &sriSm, rest, nil
 }
@@ -34,8 +34,8 @@ func ParseSriSmResp(dataIE []byte) (*SriSmResp, []byte, error) {
 	}
 
 	var sriSmResp SriSmResp
-	sriSmResp.IMSI = routingInfoResp.GetImsiString()
-	sriSmResp.LocationInfoWithLMSI.NetworkNodeNumber = routingInfoResp.GetNetworkNodeNumberString()
+	sriSmResp.IMSI, _ = routingInfoResp.GetImsiString()
+	sriSmResp.LocationInfoWithLMSI.NetworkNodeNumber, _ = routingInfoResp.GetNetworkNodeNumberString()
 
 	return &sriSmResp, rest, nil
 }
@@ -69,8 +69,8 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	}
 
 	var mtFsm MtFsm
-	mtFsm.IMSI = smRpDa.GetImsiString()
-	mtFsm.ServiceCentreAddressOA = smRpOa.GetServiceCentreAddressOAString()
+	mtFsm.IMSI, _ = smRpDa.GetImsiString()
+	mtFsm.ServiceCentreAddressOA, _ = smRpOa.GetServiceCentreAddressOAString()
 	mtFsm.TPDU, _ = sms.UnmarshalDeliver(mtFsmArg.SmRPUI)
 
 	if mtFsmArg.MoreMessagesToSend.Tag == asn1.TagNull {
@@ -109,8 +109,8 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 	}
 
 	var moFsm MoFsm
-	moFsm.ServiceCentreAddressDA = smRpDa.GetServiceCentreAddressDAString()
-	moFsm.MSISDN = smRpOa.GetMsisdnString()
+	moFsm.ServiceCentreAddressDA, _ = smRpDa.GetServiceCentreAddressDAString()
+	moFsm.MSISDN, _ = smRpOa.GetMsisdnString()
 
 	moFsm.TPDU, _ = sms.UnmarshalSubmit(moFsmArg.SmRPUI)
 

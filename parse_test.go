@@ -171,6 +171,11 @@ func TestParseMoFsm(t *testing.T) {
 			hexString:   "303c84069122609098998206912260532023042a41400a912260065015000022050003020202e6a0f41c1406b1dfee33a85d9ecfc3e7b20ed40ccbef6137",
 			expectError: false,
 		},
+		{
+			name:        "Invalid Packet for MO FSM",
+			hexString:   "301380069122608538188101ff8206912260909899",
+			expectError: true,
+		},
 	}
 
 	for _, tc := range tests {
@@ -183,14 +188,19 @@ func TestParseMoFsm(t *testing.T) {
 
 			// Parse bytes to MoFsm struct
 			moFsm, _, err := ParseMoFsm(originalBytes)
-			if err != nil {
-				t.Fatalf("Failed to parse MoFsm: %v", err)
+			if (err != nil) != tc.expectError {
+				t.Fatalf("Unexpected error status during parsing: got %v, expected error: %v", err, tc.expectError)
+			}
+
+			// If we expect an error and got one, test passes
+			if tc.expectError && err != nil {
+				return
 			}
 
 			// Marshal MoFsm struct back to bytes
 			marshaledBytes, err := moFsm.Marshal()
-			if (err != nil) != tc.expectError {
-				t.Fatalf("Unexpected error status: got %v, expected error: %v", err, tc.expectError)
+			if err != nil {
+				t.Fatalf("Failed to marshal MoFsm: %v", err)
 			}
 
 			if err == nil {

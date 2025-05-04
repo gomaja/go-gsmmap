@@ -74,21 +74,21 @@ type LocationInfoWithLMSI struct {
 	//IMSNodeIndicator                  *asn1.RawValue              `asn1:"tag:11,optional"` // NULL
 }
 
-func (riSmReq *RoutingInfoForSMArg) GetMsisdnString() string {
+func (riSmReq *RoutingInfoForSMArg) GetMsisdnString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(riSmReq.MSISDN)
 	return utils.DecodeTBCDDigits(Digits)
 }
 
-func (riSmReq *RoutingInfoForSMArg) GetServiceCenterAddressString() string {
+func (riSmReq *RoutingInfoForSMArg) GetServiceCenterAddressString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(riSmReq.ServiceCentreAddress)
 	return utils.DecodeTBCDDigits(Digits)
 }
 
-func (riSmRes *RoutingInfoForSMRes) GetImsiString() string {
+func (riSmRes *RoutingInfoForSMRes) GetImsiString() (string, error) {
 	return utils.DecodeTBCDDigits(riSmRes.IMSI)
 }
 
-func (riSmRes *RoutingInfoForSMRes) GetNetworkNodeNumberString() string {
+func (riSmRes *RoutingInfoForSMRes) GetNetworkNodeNumberString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(riSmRes.LocationInfoWithLMSI.NetworkNodeNumber)
 	return utils.DecodeTBCDDigits(Digits)
 }
@@ -144,11 +144,11 @@ type SMRPDA struct {
 	NoSMRPDA               asn1.RawValue `asn1:"tag:5,optional"` // [5] NULL
 }
 
-func (smRpDa *SMRPDA) GetImsiString() string {
+func (smRpDa *SMRPDA) GetImsiString() (string, error) {
 	return utils.DecodeTBCDDigits(smRpDa.IMSI)
 }
 
-func (smRpDa *SMRPDA) GetServiceCentreAddressDAString() string {
+func (smRpDa *SMRPDA) GetServiceCentreAddressDAString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(smRpDa.ServiceCentreAddressDA)
 	return utils.DecodeTBCDDigits(Digits)
 }
@@ -160,12 +160,12 @@ type SMRPOA struct {
 	NoSMRPOA               asn1.RawValue     `asn1:"tag:5,optional"` // [5] NULL
 }
 
-func (smRpOa *SMRPOA) GetMsisdnString() string {
+func (smRpOa *SMRPOA) GetMsisdnString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(smRpOa.MSISDN)
 	return utils.DecodeTBCDDigits(Digits)
 }
 
-func (smRpOa *SMRPOA) GetServiceCentreAddressOAString() string {
+func (smRpOa *SMRPOA) GetServiceCentreAddressOAString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(smRpOa.ServiceCentreAddressOA)
 	return utils.DecodeTBCDDigits(Digits)
 }
