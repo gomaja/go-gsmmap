@@ -18,9 +18,18 @@ func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 	}
 
 	var sriSm SriSm
-	sriSm.MSISDN = routingInfo.GetMsisdnString()
+	var msisdnErr, scaErr error
+
+	sriSm.MSISDN, msisdnErr = routingInfo.GetMsisdnString()
+	if msisdnErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode MSISDN: %w", msisdnErr)
+	}
+
 	sriSm.SmRpPri = routingInfo.SmRpPri
-	sriSm.ServiceCentreAddress = routingInfo.GetServiceCenterAddressString()
+	sriSm.ServiceCentreAddress, scaErr = routingInfo.GetServiceCenterAddressString()
+	if scaErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode ServiceCentreAddress: %w", scaErr)
+	}
 
 	return &sriSm, rest, nil
 }
@@ -34,8 +43,17 @@ func ParseSriSmResp(dataIE []byte) (*SriSmResp, []byte, error) {
 	}
 
 	var sriSmResp SriSmResp
-	sriSmResp.IMSI = routingInfoResp.GetImsiString()
-	sriSmResp.LocationInfoWithLMSI.NetworkNodeNumber = routingInfoResp.GetNetworkNodeNumberString()
+	var imsiErr, nnnErr error
+
+	sriSmResp.IMSI, imsiErr = routingInfoResp.GetImsiString()
+	if imsiErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+	}
+
+	sriSmResp.LocationInfoWithLMSI.NetworkNodeNumber, nnnErr = routingInfoResp.GetNetworkNodeNumberString()
+	if nnnErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode NetworkNodeNumber: %w", nnnErr)
+	}
 
 	return &sriSmResp, rest, nil
 }
@@ -52,7 +70,10 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	var smRpDa asn1mapmodel.SMRPDA
 	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
 	smRpDaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: mtFsmArg.SMRPDA.FullBytes} // Tag = 16 with Constructor = 0x30
-	smRpDaBytes, _ := asn1.Marshal(smRpDaByteString)
+	smRpDaBytes, err := asn1.Marshal(smRpDaByteString)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to marshal smRpDaByteString: %w", err)
+	}
 
 	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
 	if err != nil {
@@ -62,16 +83,34 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	var smRpOa asn1mapmodel.SMRPOA
 	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
 	smRpOaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: mtFsmArg.SMRPOA.FullBytes} // Tag = 16 with Constructor = 0x30
-	smRpOaBytes, _ := asn1.Marshal(smRpOaByteString)
+	smRpOaBytes, err := asn1.Marshal(smRpOaByteString)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to marshal smRpOaByteString: %w", err)
+	}
+
 	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
 	}
 
 	var mtFsm MtFsm
-	mtFsm.IMSI = smRpDa.GetImsiString()
-	mtFsm.ServiceCentreAddressOA = smRpOa.GetServiceCentreAddressOAString()
-	mtFsm.TPDU, _ = sms.UnmarshalDeliver(mtFsmArg.SmRPUI)
+	var imsiErr, scaErr error
+
+	mtFsm.IMSI, imsiErr = smRpDa.GetImsiString()
+	if imsiErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+	}
+
+	mtFsm.ServiceCentreAddressOA, scaErr = smRpOa.GetServiceCentreAddressOAString()
+	if scaErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode ServiceCentreAddressOA: %w", scaErr)
+	}
+
+	tpdu, tpduErr := sms.UnmarshalDeliver(mtFsmArg.SmRPUI)
+	if tpduErr != nil {
+		return nil, nil, fmt.Errorf("failed to unmarshal TPDU: %w", tpduErr)
+	}
+	mtFsm.TPDU = tpdu
 
 	if mtFsmArg.MoreMessagesToSend.Tag == asn1.TagNull {
 		mtFsm.MoreMessagesToSend = true
@@ -92,7 +131,10 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 	var smRpDa asn1mapmodel.SMRPDA
 	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
 	smRpDaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: moFsmArg.SMRPDA.FullBytes} // Tag = 16 with Constructor = 0x30
-	smRpDaBytes, _ := asn1.Marshal(smRpDaByteString)
+	smRpDaBytes, err := asn1.Marshal(smRpDaByteString)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to marshal smRpDaByteString: %w", err)
+	}
 
 	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
 	if err != nil {
@@ -102,17 +144,34 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 	var smRpOa asn1mapmodel.SMRPOA
 	// encapsulating the input byte to the proper one that can be understood by "encoding/binary"
 	smRpOaByteString := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: moFsmArg.SMRPOA.FullBytes} // Tag = 16 with Constructor = 0x30
-	smRpOaBytes, _ := asn1.Marshal(smRpOaByteString)
+	smRpOaBytes, err := asn1.Marshal(smRpOaByteString)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to marshal smRpOaByteString: %w", err)
+	}
+
 	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
 	}
 
 	var moFsm MoFsm
-	moFsm.ServiceCentreAddressDA = smRpDa.GetServiceCentreAddressDAString()
-	moFsm.MSISDN = smRpOa.GetMsisdnString()
+	var scaErr, msisdnErr error
 
-	moFsm.TPDU, _ = sms.UnmarshalSubmit(moFsmArg.SmRPUI)
+	moFsm.ServiceCentreAddressDA, scaErr = smRpDa.GetServiceCentreAddressDAString()
+	if scaErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode ServiceCentreAddressDA: %w", scaErr)
+	}
+
+	moFsm.MSISDN, msisdnErr = smRpOa.GetMsisdnString()
+	if msisdnErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode MSISDN: %w", msisdnErr)
+	}
+
+	tpdu, tpduErr := sms.UnmarshalSubmit(moFsmArg.SmRPUI)
+	if tpduErr != nil {
+		return nil, nil, fmt.Errorf("failed to unmarshal TPDU: %w", tpduErr)
+	}
+	moFsm.TPDU = tpdu
 
 	return &moFsm, rest, nil
 }
