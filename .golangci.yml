@@ -1,7 +1,7 @@
 version: "2"
 
 linters:
-  disable-all: true
+  disable: [ ]
   enable:
     - errcheck
     - govet
@@ -14,7 +14,7 @@ linters:
     - revive
     - unconvert
 
-linters-settings:
+settings:
   errcheck:
     check-type-assertions: true
   govet:
@@ -34,3 +34,7 @@ run:
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
+
+asyncapi: 2.0.0
+info:
+channels:
