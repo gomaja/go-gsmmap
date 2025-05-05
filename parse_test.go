@@ -199,7 +199,7 @@ func TestParseMoFsm(t *testing.T) {
 
 			// If we expect an error and got one, test passes
 			if tc.expectError && err != nil {
-				t.Log(err)
+				t.Logf("Expected error occurred in test case '%s': %v", tc.name, err)
 				return
 			}
 
