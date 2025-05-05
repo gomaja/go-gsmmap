@@ -33,23 +33,12 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v8
         with:
-          go-version: '1.23'  # Use Go 1.23 for linting as it's more stable with current golangci-lint
-          cache: true
-
-      - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.56.2  # Specify a fixed version rather than 'latest'
-          args: --timeout=5m --issues-exit-code=0
-          install-mode: binary
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          only-new-issues: false
-          skip-cache: false
+          version: latest
+          args: --issues-exit-code=0
