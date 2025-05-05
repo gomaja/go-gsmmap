@@ -172,8 +172,13 @@ func TestParseMoFsm(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:        "Invalid Packet for MO FSM",
+			name:        "Invalid Packet for MO FSM 1",
 			hexString:   "301380069122608538188101ff8206912260909899",
+			expectError: true,
+		},
+		{
+			name:        "Invalid Packet for MO FSM 2",
+			hexString:   "3081b7800826610011829761f6840891328490000005f704819e4009d047f6dbfe06000042217251400000a00500035f020190e53c0b947fd741e8b0bd0c9abfdb6510bcec26a7dd67d09c5e86cf41693728ffaecb41f2f2393da7cbc3f4f4db0d82cbdfe3f27cee0241d9e5f0bc0c32bfd9ecf71d44479741ecb47b0da2bf41e3771bce2ed3cb203abadc0685dd64d09c1e96d341e4323b6d2fcbd3ee33888e96bfeb6734e8c87edbdf2190bc3c96d7d3f476d94d77d5e70500",
 			expectError: true,
 		},
 	}
@@ -194,6 +199,7 @@ func TestParseMoFsm(t *testing.T) {
 
 			// If we expect an error and got one, test passes
 			if tc.expectError && err != nil {
+				t.Logf("Expected error occurred in test case '%s': %v", tc.name, err)
 				return
 			}
 
