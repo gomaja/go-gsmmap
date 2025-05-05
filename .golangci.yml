@@ -1,71 +1,36 @@
-# Minimal configuration for golangci-lint v2.1.1
-version: "2"  # Version as string, not number
+version: "2"
 
-# Configure which linters are enabled
-enable:
-  - errcheck
-  - govet
-  - ineffassign
-  - staticcheck
-  - unused
-  - gocyclo
-  - gosec
-  - misspell
-  - revive
-  - unconvert
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gocyclo
+    - gosec
+    - misspell
+    - revive
+    - unconvert
 
-# Disable specific linters
-disable:
-  - wsl
-  - lll
-
-# For linter-specific settings
-settings:
+linters-settings:
   errcheck:
     check-type-assertions: true
   govet:
     check-shadowing: true
   gocyclo:
     min-complexity: 15
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 3
-    min-occurrences: 3
   gosec:
     exclude-generated: true
   staticcheck:
     checks:
-      - all
+      - "all"
 
-# Formatting tools
-format:
-  - gofmt
-  - goimports
-
-# Runtime configuration
 run:
   concurrency: 4
   timeout: 5m
-  directories:
-    exclude:
-      - vendor
-      - .git
-      - .github
 
-# Output configuration
-out:
-  formats:
-    - colored-line-number
-  show-lines: true
-  show-linter-names: true
-  sort: true
-
-# Issues configuration
-exclude:
-  paths:
-    - _test\.go
-  linters:
-    - gocyclo
-    - dupl
-    - gosec
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
