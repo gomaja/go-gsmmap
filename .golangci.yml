@@ -1,7 +1,13 @@
 version: "2"
 
+run:
+  # your existing run settings
+  concurrency: 4
+  timeout: 5m
+
 linters:
-  disable: [ ]
+  # replace disable-all / enable-all
+  default: none                     # run *only* the linters you list below :contentReference[oaicite:3]{index=3}
   enable:
     - errcheck
     - govet
@@ -13,28 +19,17 @@ linters:
     - misspell
     - revive
     - unconvert
+  disable: []                       # if there are any you want to turn off
 
-settings:
-  errcheck:
-    check-type-assertions: true
-  govet:
-    check-shadowing: true
-  gocyclo:
-    min-complexity: 15
-  gosec:
-    exclude-generated: true
-  staticcheck:
-    checks:
-      - "all"
-
-run:
-  concurrency: 4
-  timeout: 5m
-
-issues:
-  max-issues-per-linter: 0
-  max-same-issues: 0
-
-asyncapi: 2.0.0
-info:
-channels:
+  settings:                         # ← move *all* per-linter settings here (not at top level)
+    errcheck:
+      check-type-assertions: true
+    govet:
+      # in v2, check-shadowing was removed; use enable: [shadow] instead
+      enable:
+        - shadow                    # :contentReference[oaicite:4]{index=4}
+    gocyclo:
+      min-complexity: 15
+    staticcheck:
+      checks:
+        - "all"
