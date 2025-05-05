@@ -45,7 +45,13 @@ jobs:
           cache: true
 
       - name: Install golangci-lint
-        uses: golangci/golangci-lint-action@v7
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: latest  # Specify a fixed version rather than 'latest'
-          args: --timeout=5m --issues-exit-code=0
+          # Get the exact version you're using locally with: golangci-lint --version
+          version: 'v2.1.1'  # Or whatever version you're using locally
+          args: --timeout=5m --issues-exit-code=0 --path-mode=abs
+          install-mode: binary
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          only-new-issues: false
+          skip-cache: false
+          working-directory: "."

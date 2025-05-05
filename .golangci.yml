@@ -1,3 +1,6 @@
+# Configuration for golangci-lint v2
+version: 2
+
 # Options for analysis running
 run:
   # Default concurrency is a available CPU number
@@ -46,33 +49,33 @@ linters-settings:
   gosec:
     # Exclude generated files
     exclude-generated: true
-  gofmt:
-    # Simplify code: gofmt with `-s` option
-    simplify: true
   staticcheck:
     # Select specific staticcheck analyzers
     checks: ["all"]
 
+# Enable specific linters
 linters:
   enable:
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
-    - typecheck
     - unused
     - gocyclo
     - gosec
-    - gofmt
     - misspell
     - revive      # A more configurable replacement for golint
-    - goimports   # Formats imports and adds missing ones
     - unconvert   # Remove unnecessary type conversions
   disable:
     - wsl # Too strict whitespace rules
     - lll # Line length limit
   fast: false
+
+# Enable formatters
+formatters:
+  enable:
+    - gofmt
+    - goimports
 
 # Issues configuration
 issues:
