@@ -190,7 +190,10 @@ func convertMtFsmToMTForwardSMArg(mtFsm *MtFsm) (asn1mapmodel.MTForwardSMArg, er
 	mtFsmArg.SMRPOA.FullBytes = smRpOaBytes
 
 	// Set SM-RP-UI (Short Message)
-	mtFsmArg.SmRPUI = mtFsm.TPDU.MarshalTP()
+	mtFsmArg.SmRPUI, err = mtFsm.TPDU.MarshalBinary()
+	if err != nil {
+		return mtFsmArg, fmt.Errorf("failed to marshal MtFsm TPDU: %w", err)
+	}
 
 	// Set MoreMessagesToSend flag if needed
 	if mtFsm.MoreMessagesToSend {
@@ -266,7 +269,10 @@ func convertMoFsmToMOForwardSMArg(moFsm *MoFsm) (asn1mapmodel.MOForwardSMArg, er
 	moFsmArg.SMRPOA.FullBytes = smRpOaBytes
 
 	// Set SM-RP-UI (Short Message)
-	moFsmArg.SmRPUI = moFsm.TPDU.MarshalTP()
+	moFsmArg.SmRPUI, err = moFsm.TPDU.MarshalBinary()
+	if err != nil {
+		return moFsmArg, fmt.Errorf("failed to marshal MoFsm TPDU: %w", err)
+	}
 
 	return moFsmArg, nil
 }
