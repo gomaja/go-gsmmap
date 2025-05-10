@@ -4,8 +4,8 @@ import (
 	"encoding/asn1"
 	"fmt"
 
-	"github.com/fkgi/sms"
 	"github.com/gomaja/go-gsmmap/asn1mapmodel"
+	"github.com/warthog618/sms"
 )
 
 // ParseSriSm take a complete bytes IE
@@ -106,11 +106,16 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to decode ServiceCentreAddressOA: %w", scaErr)
 	}
 
-	tpdu, tpduErr := sms.UnmarshalDeliver(mtFsmArg.SmRPUI)
+	tpduDeliver, tpduErr := sms.Unmarshal(mtFsmArg.SmRPUI, sms.AsMT)
 	if tpduErr != nil {
 		return nil, nil, fmt.Errorf("failed to unmarshal TPDU: %w", tpduErr)
 	}
-	mtFsm.TPDU = tpdu
+
+	if tpduDeliver == nil {
+		return nil, nil, fmt.Errorf("failed to unmarshal TPDU, nil returned: %w", tpduErr)
+	}
+
+	mtFsm.TPDU = *tpduDeliver
 
 	if mtFsmArg.MoreMessagesToSend.Tag == asn1.TagNull {
 		mtFsm.MoreMessagesToSend = true
@@ -167,11 +172,15 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to decode MSISDN: %w", msisdnErr)
 	}
 
-	tpdu, tpduErr := sms.UnmarshalSubmit(moFsmArg.SmRPUI)
+	tpduSubmit, tpduErr := sms.Unmarshal(moFsmArg.SmRPUI, sms.AsMO)
 	if tpduErr != nil {
 		return nil, nil, fmt.Errorf("failed to unmarshal TPDU: %w", tpduErr)
 	}
-	moFsm.TPDU = tpdu
+
+	if tpduSubmit == nil {
+		return nil, nil, fmt.Errorf("failed to unmarshal TPDU, nil returned: %w", tpduErr)
+	}
+	moFsm.TPDU = *tpduSubmit
 
 	return &moFsm, rest, nil
 }

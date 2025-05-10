@@ -84,40 +84,33 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fkgi/sms"
-	"github.com/fkgi/teldata"
 	"github.com/gomaja/go-gsmmap"
+	"github.com/warthog618/sms/encoding/tpdu"
 )
 
 func main() {
 	imsi := "234100080813836"
 	serviceCentreAddressOA := "9613488888"
-	TPOA, err := teldata.ParseTBCD("96170111474")
-	if err != nil {
-		fmt.Printf("Error parsing TPOA: %v\n", err)
-		return
-	}
-	AddressOA := sms.Address{
-		TON:  sms.TypeInternational,
-		NPI:  sms.PlanISDNTelephone,
-		Addr: TPOA,
-	}
 
-	// Create a new SMS Deliver message
-	deliver := sms.Deliver{
-		MMS:  true,
-		OA:   AddressOA,
-		PID:  byte(0),
-		DCS:  sms.GeneralDataCoding{},
-		SCTS: time.Now(),
-		UD:   sms.UserData{Text: "Hello World!"},
-	}
+	TPOA := "96170111474"
+	protocolID := uint8(0x00) // TP-PID
+	dataCoding := uint8(0x00) // TP-DCS (0x00 ⇒ GSM7 default)
+	tpduDeliver, _ := tpdu.NewDeliver()
+	tpduDeliver.OA = tpdu.NewAddress(tpdu.FromNumber(TPOA))
+	tpduDeliver.OA.SetNumberingPlan(tpdu.NpISDN)
+	tpduDeliver.OA.SetTypeOfNumber(tpdu.TonInternational)
+
+	tpduDeliver.PID = protocolID
+	tpduDeliver.DCS = tpdu.DCS(dataCoding)
+	tpduDeliver.SCTS = tpdu.Timestamp{Time: time.Now()}
+	tpduDeliver.UD = []byte("Hello! This is a message")
+	tpduDeliver.FirstOctet = tpdu.FoMMS // to indicate that no more messages are waiting (simple message)
 
 	// Create a Forward Short Message request
 	mtFsm := &gsmmap.MtFsm{
 		IMSI:                   imsi,
 		ServiceCentreAddressOA: serviceCentreAddressOA,
-		TPDU:                   deliver,
+		TPDU:                   *tpduDeliver,
 		MoreMessagesToSend:     false,
 	}
 

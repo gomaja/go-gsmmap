@@ -1,6 +1,8 @@
 package gsmmap
 
-import "github.com/fkgi/sms"
+import (
+	"github.com/warthog618/sms/encoding/tpdu"
+)
 
 type SriSm struct {
 	MSISDN               string
@@ -23,7 +25,7 @@ type LocationInfoWithLMSI struct {
 type MtFsm struct {
 	IMSI                   string
 	ServiceCentreAddressOA string
-	TPDU                   sms.Deliver
+	TPDU                   tpdu.TPDU // tpdu.MT (Deliver type TPDU)
 
 	MoreMessagesToSend bool
 }
@@ -31,5 +33,5 @@ type MtFsm struct {
 type MoFsm struct {
 	ServiceCentreAddressDA string
 	MSISDN                 string
-	TPDU                   sms.Submit
+	TPDU                   tpdu.TPDU // tpdu.MO (Submit type TPDU)
 }
