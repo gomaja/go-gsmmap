@@ -110,6 +110,11 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	if tpduErr != nil {
 		return nil, nil, fmt.Errorf("failed to unmarshal TPDU: %w", tpduErr)
 	}
+
+	if tpduDeliver == nil {
+		return nil, nil, fmt.Errorf("failed to unmarshal TPDU, nil returned: %w", tpduErr)
+	}
+
 	mtFsm.TPDU = *tpduDeliver
 
 	if mtFsmArg.MoreMessagesToSend.Tag == asn1.TagNull {
@@ -170,6 +175,10 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 	tpduSubmit, tpduErr := sms.Unmarshal(moFsmArg.SmRPUI, sms.AsMO)
 	if tpduErr != nil {
 		return nil, nil, fmt.Errorf("failed to unmarshal TPDU: %w", tpduErr)
+	}
+
+	if tpduSubmit == nil {
+		return nil, nil, fmt.Errorf("failed to unmarshal TPDU, nil returned: %w", tpduErr)
 	}
 	moFsm.TPDU = *tpduSubmit
 
