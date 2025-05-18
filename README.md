@@ -54,7 +54,7 @@ go get github.com/gomaja/go-gsmmap
 
 ## Dependencies
 
-- [github.com/warthog618/sms](https://github.com/fkgi/sms): For SMS message handling
+- [github.com/warthog618/sms](https://github.com/warthog618/sms): For SMS message handling
 
 ## Author
 
