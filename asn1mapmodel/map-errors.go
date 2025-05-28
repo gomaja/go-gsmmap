@@ -84,7 +84,6 @@ const (
 
 // Error to string mapping
 var errorStrings = map[Error]string{
-	0:                             "",
 	UnknownSubscriber:             "UnknownSubscriber",
 	UnknownMSC:                    "UnknownMSC",
 	UnidentifiedSubscriber:        "UnidentifiedSubscriber",
