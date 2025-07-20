@@ -29,8 +29,6 @@ go get github.com/gomaja/go-gsmmap
 | Return Result Last Send Routing Info For Short Message | SRI-SM-Resp      | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
 | Invoke Mt Forward Short Message                        | MT-ForwardSM     | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
 | Invoke MO Forward Short Message                        | MO-ForwardSM     | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Return Result Last Invoke Forward Short Message        | ReturnResultLast | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Begin otid (concatenated message preparation)          | Begin-otid       | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
 
 ## API Documentation
 
