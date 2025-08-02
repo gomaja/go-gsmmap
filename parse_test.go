@@ -10,14 +10,22 @@ import (
 func TestParseSriSm(t *testing.T) {
 	// Test cases
 	tests := []struct {
-		name        string
-		hexString   string
-		expectError bool
+		name                string
+		hexString           string
+		expectError         bool
+		matchMarshaledBytes bool
 	}{
 		{
-			name:        "Valid SRI SM",
-			hexString:   "301380069122608538188101ff8206912260909899",
-			expectError: false,
+			name:                "Valid SRI SM",
+			hexString:           "301380069122608538188101ff8206912260909899",
+			expectError:         false,
+			matchMarshaledBytes: true,
+		},
+		{
+			name:                "Valid SRI SM - nonDER",
+			hexString:           "3019800a915282051447720982f9810101820891328490001015f8",
+			expectError:         false,
+			matchMarshaledBytes: false,
 		},
 	}
 
@@ -41,7 +49,7 @@ func TestParseSriSm(t *testing.T) {
 				t.Fatalf("Unexpected error status: got %v, expected error: %v", err, tc.expectError)
 			}
 
-			if err == nil {
+			if err == nil && tc.matchMarshaledBytes {
 				// Compare original and marshaled bytes
 				if diff := cmp.Diff(originalBytes, marshaledBytes); diff != "" {
 					t.Errorf("Marshaled bytes don't match original (-original +marshaled):\n%s", diff)
