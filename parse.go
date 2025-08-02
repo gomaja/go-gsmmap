@@ -5,11 +5,23 @@ import (
 	"fmt"
 
 	"github.com/gomaja/go-gsmmap/asn1mapmodel"
+	tcapUtils "github.com/gomaja/go-tcap/utils"
 	"github.com/warthog618/sms"
 )
 
-// ParseSriSm take a complete bytes IE
+// ParseSriSm take a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
+
+	derBytes, err := tcapUtils.MakeDER(dataIE)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ParseSriSmDER(derBytes)
+}
+
+// ParseSriSmDER take a complete bytes IE with DER ASN1 encoding
+func ParseSriSmDER(dataIE []byte) (*SriSm, []byte, error) {
 	var routingInfo asn1mapmodel.RoutingInfoForSMArg
 
 	rest, err := asn1.Unmarshal(dataIE, &routingInfo)
