@@ -45,7 +45,7 @@ func TestParseSriSm(t *testing.T) {
 
 			// Marshal SriSm struct back to bytes
 			marshaledBytes, err := sriSm.Marshal()
-			if (err != nil) != tc.matchMarshaledBytes {
+			if (err != nil) != tc.expectError {
 				t.Fatalf("Unexpected error status: got %v, expected error: %v", err, tc.expectError)
 			}
 
