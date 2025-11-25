@@ -1,5 +1,37 @@
 package asn1mapmodel
 
+// ExtensionNo Constants representing the extension indicator
+const (
+	ExtensionNo = 0b10000000 // bit 8 set to 1, indicating no extension
+)
+
+// Constants representing the nature of address indicator (bits 7, 6, 5)
+const (
+	AddressNatureUnknown           = 0b000 << 4
+	AddressNatureInternational     = 0b001 << 4
+	AddressNatureNational          = 0b010 << 4
+	AddressNatureNetworkSpecific   = 0b011 << 4
+	AddressNatureSubscriber        = 0b100 << 4
+	AddressNatureReserved          = 0b101 << 4
+	AddressNatureAbbreviated       = 0b110 << 4
+	AddressNatureReservedExtension = 0b111 << 4
+)
+
+// Constants representing the numbering plan indicator (bits 4, 3, 2, 1)
+const (
+	NumberingPlanUnknown           = 0b0000
+	NumberingPlanISDN              = 0b0001
+	NumberingPlanSpare1            = 0b0010
+	NumberingPlanData              = 0b0011
+	NumberingPlanTelex             = 0b0100
+	NumberingPlanSpare2            = 0b0101
+	NumberingPlanLandMobile        = 0b0110
+	NumberingPlanSpare3            = 0b0111
+	NumberingPlanNational          = 0b1000
+	NumberingPlanPrivate           = 0b1001
+	NumberingPlanReservedExtension = 0b1111
+)
+
 // -- general data types
 
 // AddressString is OCTET STRING encoded as TBCD-String
