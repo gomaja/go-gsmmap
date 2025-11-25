@@ -1,6 +1,10 @@
 package asn1mapmodel
 
-import "encoding/asn1"
+import (
+	"encoding/asn1"
+
+	"github.com/gomaja/go-gsmmap/utils"
+)
 
 // UpdateLocationArg represents the UpdateLocation operation argument
 // UpdateLocationArg ::= SEQUENCE {
@@ -92,3 +96,17 @@ const (
 	LCSCapabilitySet4 = 3
 	LCSCapabilitySet5 = 4
 )
+
+func (updLoc *UpdateLocationArg) GetImsiString() (string, error) {
+	return utils.DecodeTBCDDigits(updLoc.IMSI)
+}
+
+func (updLoc *UpdateLocationArg) GetMSCNumberString() (string, error) {
+	_, _, _, Digits := DecodeAddressString(updLoc.MSCNumber)
+	return utils.DecodeTBCDDigits(Digits)
+}
+
+func (updLoc *UpdateLocationArg) GetVLRNumberString() (string, error) {
+	_, _, _, Digits := DecodeAddressString(updLoc.VLRNumber)
+	return utils.DecodeTBCDDigits(Digits)
+}
