@@ -196,3 +196,100 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 
 	return &moFsm, rest, nil
 }
+
+// ParseUpdateLocation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
+func ParseUpdateLocation(dataIE []byte) (*UpdateLocation, []byte, error) {
+	derBytes, err := tcapUtils.MakeDER(dataIE)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ParseUpdateLocationDER(derBytes)
+}
+
+// ParseUpdateLocationDER takes a complete bytes IE with DER ASN1 encoding
+func ParseUpdateLocationDER(dataIE []byte) (*UpdateLocation, []byte, error) {
+	var updLocArg asn1mapmodel.UpdateLocationArg
+
+	rest, err := asn1.Unmarshal(dataIE, &updLocArg)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 UpdateLocationArg: %v", err)
+	}
+
+	var updLoc UpdateLocation
+	var imsiErr, mscErr, vlrErr error
+
+	updLoc.IMSI, imsiErr = updLocArg.GetImsiString()
+	if imsiErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+	}
+
+	updLoc.MSCNumber, mscErr = updLocArg.GetMSCNumberString()
+	if mscErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode MSCNumber: %w", mscErr)
+	}
+
+	updLoc.VLRNumber, vlrErr = updLocArg.GetVLRNumberString()
+	if vlrErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode VLRNumber: %w", vlrErr)
+	}
+
+	// Parse optional VlrCapability if present
+	if updLocArg.VlrCapability.SupportedCamelPhases.BitLength > 0 ||
+		updLocArg.VlrCapability.SupportedLCSCapabilitySets.BitLength > 0 {
+		updLoc.VlrCapability = convertAsn1ToVlrCapability(&updLocArg.VlrCapability)
+	}
+
+	return &updLoc, rest, nil
+}
+
+func convertAsn1ToVlrCapability(asn1VlrCap *asn1mapmodel.VlrCapability) *VlrCapability {
+	vlrCap := &VlrCapability{}
+
+	// Convert SupportedCamelPhases from BitString
+	if asn1VlrCap.SupportedCamelPhases.BitLength > 0 {
+		camelPhases := &SupportedCamelPhases{}
+		bits := asn1VlrCap.SupportedCamelPhases
+
+		if bits.BitLength > asn1mapmodel.CamelPhase1 {
+			camelPhases.Phase1 = bits.At(asn1mapmodel.CamelPhase1) == 1
+		}
+		if bits.BitLength > asn1mapmodel.CamelPhase2 {
+			camelPhases.Phase2 = bits.At(asn1mapmodel.CamelPhase2) == 1
+		}
+		if bits.BitLength > asn1mapmodel.CamelPhase3 {
+			camelPhases.Phase3 = bits.At(asn1mapmodel.CamelPhase3) == 1
+		}
+		if bits.BitLength > asn1mapmodel.CamelPhase4 {
+			camelPhases.Phase4 = bits.At(asn1mapmodel.CamelPhase4) == 1
+		}
+
+		vlrCap.SupportedCamelPhases = camelPhases
+	}
+
+	// Convert SupportedLCSCapabilitySets from BitString
+	if asn1VlrCap.SupportedLCSCapabilitySets.BitLength > 0 {
+		lcsCaps := &SupportedLCSCapabilitySets{}
+		bits := asn1VlrCap.SupportedLCSCapabilitySets
+
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet1 {
+			lcsCaps.LcsCapabilitySet1 = bits.At(asn1mapmodel.LCSCapabilitySet1) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet2 {
+			lcsCaps.LcsCapabilitySet2 = bits.At(asn1mapmodel.LCSCapabilitySet2) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet3 {
+			lcsCaps.LcsCapabilitySet3 = bits.At(asn1mapmodel.LCSCapabilitySet3) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet4 {
+			lcsCaps.LcsCapabilitySet4 = bits.At(asn1mapmodel.LCSCapabilitySet4) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet5 {
+			lcsCaps.LcsCapabilitySet5 = bits.At(asn1mapmodel.LCSCapabilitySet5) == 1
+		}
+
+		vlrCap.SupportedLCSCapabilitySets = lcsCaps
+	}
+
+	return vlrCap
+}
