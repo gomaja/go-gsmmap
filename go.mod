@@ -7,4 +7,4 @@ require (
 	github.com/warthog618/sms v0.3.0
 )
 
-require github.com/gomaja/go-tcap v1.2.0 // indirect
+require github.com/gomaja/go-tcap v1.2.4 // indirect

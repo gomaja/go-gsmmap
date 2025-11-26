@@ -292,3 +292,150 @@ func stripTagAndLength(value interface{}) ([]byte, error) {
 
 	return rawValue.Bytes, nil
 }
+
+func (updLoc *UpdateLocation) Marshal() ([]byte, error) {
+	// Create UpdateLocationArg structure from UpdateLocation
+	updLocArg, err := convertUpdateLocationToUpdateLocationArg(updLoc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert UpdateLocation to UpdateLocationArg: %w", err)
+	}
+
+	// Encode to ASN.1 DER format
+	dataIE, err := asn1.Marshal(updLocArg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ASN.1 UpdateLocation: %w", err)
+	}
+
+	// Return complete Information Element (IE) with tag, length, and value
+	return dataIE, nil
+}
+
+func convertUpdateLocationToUpdateLocationArg(updLoc *UpdateLocation) (asn1mapmodel.UpdateLocationArg, error) {
+	var updLocArg asn1mapmodel.UpdateLocationArg
+
+	// Encode IMSI from TBCD format
+	imsiTBCDbytes, err := utils.EncodeTBCDDigits(updLoc.IMSI)
+	if err != nil {
+		return updLocArg, fmt.Errorf("failed to encode IMSI: %w", err)
+	}
+
+	// Encode MSCNumber from TBCD format
+	mscTBCDbytes, err := utils.EncodeTBCDDigits(updLoc.MSCNumber)
+	if err != nil {
+		return updLocArg, fmt.Errorf("failed to encode MSCNumber: %w", err)
+	}
+
+	// Encode VLRNumber from TBCD format
+	vlrTBCDbytes, err := utils.EncodeTBCDDigits(updLoc.VLRNumber)
+	if err != nil {
+		return updLocArg, fmt.Errorf("failed to encode VLRNumber: %w", err)
+	}
+
+	// Create encoded MSCNumber address string
+	encodedMSCNumber := asn1mapmodel.EncodeAddressString(
+		asn1mapmodel.ExtensionNo,
+		asn1mapmodel.AddressNatureInternational,
+		asn1mapmodel.NumberingPlanISDN,
+		mscTBCDbytes)
+
+	// Create encoded VLRNumber address string
+	encodedVLRNumber := asn1mapmodel.EncodeAddressString(
+		asn1mapmodel.ExtensionNo,
+		asn1mapmodel.AddressNatureInternational,
+		asn1mapmodel.NumberingPlanISDN,
+		vlrTBCDbytes)
+
+	// Fill the fields in the return structure
+	updLocArg.IMSI = imsiTBCDbytes
+	updLocArg.MSCNumber = encodedMSCNumber
+	updLocArg.VLRNumber = encodedVLRNumber
+
+	// Set optional VlrCapability if present
+	if updLoc.VlrCapability != nil {
+		updLocArg.VlrCapability = convertVlrCapabilityToAsn1(updLoc.VlrCapability)
+	}
+
+	return updLocArg, nil
+}
+
+func convertVlrCapabilityToAsn1(vlrCap *VlrCapability) asn1mapmodel.VlrCapability {
+	var asn1VlrCap asn1mapmodel.VlrCapability
+
+	// Convert SupportedCamelPhases to BitString
+	// SupportedCamelPhases ::= BIT STRING { phase1(0), phase2(1), phase3(2), phase4(3) } (SIZE 1..16)
+	if vlrCap.SupportedCamelPhases != nil {
+		camelPhases := vlrCap.SupportedCamelPhases
+
+		// Build the bit string from phase flags, tracking the highest bit position set
+		var byteVal byte
+		var bitLength int
+		if camelPhases.Phase1 {
+			byteVal |= 0x80 // bit 0 (MSB)
+			bitLength = 1
+		}
+		if camelPhases.Phase2 {
+			byteVal |= 0x40 // bit 1
+			bitLength = 2
+		}
+		if camelPhases.Phase3 {
+			byteVal |= 0x20 // bit 2
+			bitLength = 3
+		}
+		if camelPhases.Phase4 {
+			byteVal |= 0x10 // bit 3
+			bitLength = 4
+		}
+
+		// If no phases set but struct exists, use minimum length of 1
+		if bitLength == 0 {
+			bitLength = 1
+		}
+
+		asn1VlrCap.SupportedCamelPhases = asn1.BitString{
+			Bytes:     []byte{byteVal},
+			BitLength: bitLength,
+		}
+	}
+
+	// Convert SupportedLCSCapabilitySets to BitString
+	// SupportedLCS-CapabilitySets ::= BIT STRING { lcsCapabilitySet1(0), ..., lcsCapabilitySet5(4) } (SIZE 2..16)
+	if vlrCap.SupportedLCSCapabilitySets != nil {
+		lcsCaps := vlrCap.SupportedLCSCapabilitySets
+
+		// Build the bit string from LCS capability flags, tracking the highest bit position set
+		var byteVal byte
+		var bitLength int
+		if lcsCaps.LcsCapabilitySet1 {
+			byteVal |= 0x80 // bit 0 (MSB)
+			bitLength = 1
+		}
+		if lcsCaps.LcsCapabilitySet2 {
+			byteVal |= 0x40 // bit 1
+			bitLength = 2
+		}
+		if lcsCaps.LcsCapabilitySet3 {
+			byteVal |= 0x20 // bit 2
+			bitLength = 3
+		}
+		if lcsCaps.LcsCapabilitySet4 {
+			byteVal |= 0x10 // bit 3
+			bitLength = 4
+		}
+		if lcsCaps.LcsCapabilitySet5 {
+			byteVal |= 0x08 // bit 4
+			bitLength = 5
+		}
+
+		// If no sets set but struct exists, use minimum length of 2 per spec
+		if bitLength == 0 {
+			bitLength = 2
+		}
+
+		asn1VlrCap.SupportedLCSCapabilitySets = asn1.BitString{
+			Bytes:     []byte{byteVal},
+			BitLength: bitLength,
+		}
+	}
+
+	return asn1VlrCap
+}

@@ -226,3 +226,128 @@ func TestParseMoFsm(t *testing.T) {
 		})
 	}
 }
+
+func TestParseUpdateLocation(t *testing.T) {
+	// Test cases
+	tests := []struct {
+		name                string
+		hexString           string
+		expectError         bool
+		expectedIMSI        string
+		expectedMSCNumber   string
+		expectedVLRNumber   string
+		expectedCamelPhases *SupportedCamelPhases
+		expectedLCSCapSets  *SupportedLCSCapabilitySets
+	}{
+		{
+			name:              "Valid UpdateLocation with VlrCapability (SupportedCamelPhases only)",
+			hexString:         "3022040806076300938555f6810791261806630000040791261806630000a604800204c0",
+			expectError:       false,
+			expectedIMSI:      "607036003958556",
+			expectedMSCNumber: "628160360000",
+			expectedVLRNumber: "628160360000",
+			expectedCamelPhases: &SupportedCamelPhases{
+				Phase1: true,
+				Phase2: true,
+				Phase3: false,
+				Phase4: false,
+			},
+			expectedLCSCapSets: nil,
+		},
+		{
+			name:              "Valid UpdateLocation with VlrCapability (both SupportedCamelPhases and SupportedLCSCapabilitySets)",
+			hexString:         "3026040832547090975937f2810791997627854900040791997627854900a608800205e0850206c0",
+			expectError:       false,
+			expectedIMSI:      "234507097995732",
+			expectedMSCNumber: "996772589400",
+			expectedVLRNumber: "996772589400",
+			expectedCamelPhases: &SupportedCamelPhases{
+				Phase1: true,
+				Phase2: true,
+				Phase3: true,
+				Phase4: false,
+			},
+			expectedLCSCapSets: &SupportedLCSCapabilitySets{
+				LcsCapabilitySet1: true,
+				LcsCapabilitySet2: true,
+				LcsCapabilitySet3: false,
+				LcsCapabilitySet4: false,
+				LcsCapabilitySet5: false,
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Decode hex string to bytes
+			originalBytes, err := hex.DecodeString(tc.hexString)
+			if err != nil {
+				t.Fatalf("Failed to decode hex string: %v", err)
+			}
+
+			// Parse bytes to UpdateLocation struct
+			updLoc, _, err := ParseUpdateLocation(originalBytes)
+			if (err != nil) != tc.expectError {
+				t.Fatalf("Unexpected error status during parsing: got %v, expected error: %v", err, tc.expectError)
+			}
+
+			// If we expect an error and got one, test passes
+			if tc.expectError && err != nil {
+				t.Logf("Expected error occurred in test case '%s': %v", tc.name, err)
+				return
+			}
+
+			// Verify parsed values match expected values
+			if updLoc.IMSI != tc.expectedIMSI {
+				t.Errorf("IMSI mismatch: got %s, expected %s", updLoc.IMSI, tc.expectedIMSI)
+			}
+			if updLoc.MSCNumber != tc.expectedMSCNumber {
+				t.Errorf("MSCNumber mismatch: got %s, expected %s", updLoc.MSCNumber, tc.expectedMSCNumber)
+			}
+			if updLoc.VLRNumber != tc.expectedVLRNumber {
+				t.Errorf("VLRNumber mismatch: got %s, expected %s", updLoc.VLRNumber, tc.expectedVLRNumber)
+			}
+
+			// Verify VlrCapability
+			if tc.expectedCamelPhases != nil {
+				if updLoc.VlrCapability == nil || updLoc.VlrCapability.SupportedCamelPhases == nil {
+					t.Error("Expected SupportedCamelPhases but got nil")
+				} else {
+					if diff := cmp.Diff(tc.expectedCamelPhases, updLoc.VlrCapability.SupportedCamelPhases); diff != "" {
+						t.Errorf("SupportedCamelPhases mismatch (-expected +got):\n%s", diff)
+					}
+				}
+			}
+
+			if tc.expectedLCSCapSets != nil {
+				if updLoc.VlrCapability == nil || updLoc.VlrCapability.SupportedLCSCapabilitySets == nil {
+					t.Error("Expected SupportedLCSCapabilitySets but got nil")
+				} else {
+					if diff := cmp.Diff(tc.expectedLCSCapSets, updLoc.VlrCapability.SupportedLCSCapabilitySets); diff != "" {
+						t.Errorf("SupportedLCSCapabilitySets mismatch (-expected +got):\n%s", diff)
+					}
+				}
+			}
+
+			// Marshal UpdateLocation struct back to bytes and verify round-trip
+			marshaledBytes, err := updLoc.Marshal()
+			if err != nil {
+				t.Fatalf("Failed to marshal UpdateLocation: %v", err)
+			}
+
+			// Parse the marshaled bytes again and verify semantic equality
+			updLoc2, _, err := ParseUpdateLocation(marshaledBytes)
+			if err != nil {
+				t.Fatalf("Failed to re-parse marshaled UpdateLocation: %v", err)
+			}
+
+			// Compare the two parsed structs (semantic round-trip)
+			if diff := cmp.Diff(updLoc, updLoc2); diff != "" {
+				t.Errorf("Round-trip semantic mismatch (-first +second):\n%s", diff)
+			}
+
+			t.Logf("Parsed UpdateLocation: IMSI=%s, MSCNumber=%s, VLRNumber=%s",
+				updLoc.IMSI, updLoc.MSCNumber, updLoc.VLRNumber)
+		})
+	}
+}

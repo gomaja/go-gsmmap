@@ -11,7 +11,7 @@ A robust, lightweight implementation of the MAP (Mobile Application Part) protoc
 
 The `go-gsmmap` package provides simple and painless handling of MAP in the mobile networks, implemented in the Go Programming Language. It's designed to be straightforward to integrate into existing Go applications that need to interact with mobile networks.
 
-Though MAP is an ASN.1-based protocol, this implementation does not use any ASN.1 files or ASN.1 parsers. The MAP structures in this library are directly defined based on the ASN.1 definition, making them lightweight and efficient.
+The GSM-MAP structures in this library are directly defined as go structs with ASN.1 tags, making them lightweight and efficient.
 
 ## Installation
 
@@ -23,32 +23,13 @@ go get github.com/gomaja/go-gsmmap
 
 ### MAP Messages
 
-| MAP Message                                            | Abbreviation     | Reference                                | Supported |
-|--------------------------------------------------------|------------------|------------------------------------------|-----------|
-| Invoke Send Routing Info For Short Message             | SRI-for-SM-Req   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Return Result Last Send Routing Info For Short Message | SRI-SM-Resp      | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Invoke Mt Forward Short Message                        | MT-ForwardSM     | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Invoke MO Forward Short Message                        | MO-ForwardSM     | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-
-## API Documentation
-
-### Main Structures
-
-- **SriSm**: Structure for Send Routing Info for Short Message requests
-- **SriSmResp**: Structure for Send Routing Info for Short Message responses
-- **MtFsm**: Structure for Forward Short Message requests
-- **MoFsm**: Structure for Forward Short Message requests
-
-### Marshal/Parse Functions
-
-- **SriSm.Marshal()**: Converts SriSm to ASN.1 DER format
-- **ParseSriSm()**: Parses ASN.1 DER data into SriSm structure
-- **SriSmResp.Marshal()**: Converts SriSmResp to ASN.1 DER format
-- **ParseSriSmResp()**: Parses ASN.1 DER data into SriSmResp structure
-- **MtFsm.Marshal()**: Converts MtFsm to ASN.1 DER format
-- **ParseMtFsm()**: Parses ASN.1 DER data into MtFsm structure
-- **MoFsm.Marshal()**: Converts MoFsm to ASN.1 DER format
-- **ParseMoFsm()**: Parses ASN.1 DER data into MoFsm structure
+| MAP Message                                            | Abbreviation   | Reference                                | Supported |
+|--------------------------------------------------------|----------------|------------------------------------------|-----------|
+| Invoke Send Routing Info For Short Message             | SRI-for-SM-Req | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Return Result Last Send Routing Info For Short Message | SRI-SM-Resp    | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke Mt Forward Short Message                        | MT-ForwardSM   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke MO Forward Short Message                        | MO-ForwardSM   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke Update Location                                 | UpdateLocation | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
 
 ## Dependencies
 
