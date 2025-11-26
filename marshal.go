@@ -362,13 +362,13 @@ func convertVlrCapabilityToAsn1(vlrCap *VlrCapability) asn1mapmodel.VlrCapabilit
 	var asn1VlrCap asn1mapmodel.VlrCapability
 
 	// Convert SupportedCamelPhases to BitString
+	// SupportedCamelPhases ::= BIT STRING { phase1(0), phase2(1), phase3(2), phase4(3) } (SIZE 1..16)
 	if vlrCap.SupportedCamelPhases != nil {
 		camelPhases := vlrCap.SupportedCamelPhases
-		var bits []byte
-		var bitLength int
 
-		// Build the bit string from phase flags
+		// Build the bit string from phase flags, tracking the highest bit position set
 		var byteVal byte
+		var bitLength int
 		if camelPhases.Phase1 {
 			byteVal |= 0x80 // bit 0 (MSB)
 			bitLength = 1
@@ -386,22 +386,25 @@ func convertVlrCapabilityToAsn1(vlrCap *VlrCapability) asn1mapmodel.VlrCapabilit
 			bitLength = 4
 		}
 
-		bits = []byte{byteVal}
+		// If no phases set but struct exists, use minimum length of 1
+		if bitLength == 0 {
+			bitLength = 1
+		}
 
 		asn1VlrCap.SupportedCamelPhases = asn1.BitString{
-			Bytes:     bits,
+			Bytes:     []byte{byteVal},
 			BitLength: bitLength,
 		}
 	}
 
 	// Convert SupportedLCSCapabilitySets to BitString
+	// SupportedLCS-CapabilitySets ::= BIT STRING { lcsCapabilitySet1(0), ..., lcsCapabilitySet5(4) } (SIZE 2..16)
 	if vlrCap.SupportedLCSCapabilitySets != nil {
 		lcsCaps := vlrCap.SupportedLCSCapabilitySets
-		var bits []byte
-		var bitLength int
 
-		// Build the bit string from LCS capability flags
+		// Build the bit string from LCS capability flags, tracking the highest bit position set
 		var byteVal byte
+		var bitLength int
 		if lcsCaps.LcsCapabilitySet1 {
 			byteVal |= 0x80 // bit 0 (MSB)
 			bitLength = 1
@@ -423,10 +426,13 @@ func convertVlrCapabilityToAsn1(vlrCap *VlrCapability) asn1mapmodel.VlrCapabilit
 			bitLength = 5
 		}
 
-		bits = []byte{byteVal}
+		// If no sets set but struct exists, use minimum length of 2 per spec
+		if bitLength == 0 {
+			bitLength = 2
+		}
 
 		asn1VlrCap.SupportedLCSCapabilitySets = asn1.BitString{
-			Bytes:     bits,
+			Bytes:     []byte{byteVal},
 			BitLength: bitLength,
 		}
 	}
