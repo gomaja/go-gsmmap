@@ -79,3 +79,8 @@ func DecodeAddressString(encoded []byte) (extensionIndicator, natureOfAddress, n
 
 // LMSI represents an ASN.1 OCTET STRING with a size constraint of 4 bytes.
 type LMSI []byte
+
+// GSNAddress represents a GSN Address
+// GSN-Address ::= OCTET STRING (SIZE (5..17))
+// Octets are coded according to TS 3GPP TS 23.003 [17]
+type GSNAddress []byte

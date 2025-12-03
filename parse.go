@@ -293,3 +293,84 @@ func convertAsn1ToVlrCapability(asn1VlrCap *asn1mapmodel.VlrCapability) *VlrCapa
 
 	return vlrCap
 }
+
+// ParseUpdateGprsLocation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
+func ParseUpdateGprsLocation(dataIE []byte) (*UpdateGprsLocation, []byte, error) {
+	derBytes, err := tcapUtils.MakeDER(dataIE)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ParseUpdateGprsLocationDER(derBytes)
+}
+
+// ParseUpdateGprsLocationDER takes a complete bytes IE with DER ASN1 encoding
+func ParseUpdateGprsLocationDER(dataIE []byte) (*UpdateGprsLocation, []byte, error) {
+	var updGprsLocArg asn1mapmodel.UpdateGprsLocationArg
+
+	rest, err := asn1.Unmarshal(dataIE, &updGprsLocArg)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 UpdateGprsLocationArg: %v", err)
+	}
+
+	var updGprsLoc UpdateGprsLocation
+	var imsiErr, sgsnNumErr, sgsnAddrErr error
+
+	updGprsLoc.IMSI, imsiErr = updGprsLocArg.GetImsiString()
+	if imsiErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+	}
+
+	updGprsLoc.SGSNNumber, sgsnNumErr = updGprsLocArg.GetSGSNNumberString()
+	if sgsnNumErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode SGSNNumber: %w", sgsnNumErr)
+	}
+
+	updGprsLoc.SGSNAddress, sgsnAddrErr = updGprsLocArg.GetSGSNAddressString()
+	if sgsnAddrErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode SGSNAddress: %w", sgsnAddrErr)
+	}
+
+	// Parse optional SGSNCapability if present
+	if updGprsLocArg.SGSNCapability.GprsEnhancementsSupportIndicator.Tag != 0 ||
+		updGprsLocArg.SGSNCapability.SupportedLCSCapabilitySets.BitLength > 0 {
+		updGprsLoc.SGSNCapability = convertAsn1ToSGSNCapability(&updGprsLocArg.SGSNCapability)
+	}
+
+	return &updGprsLoc, rest, nil
+}
+
+func convertAsn1ToSGSNCapability(asn1SGSNCap *asn1mapmodel.SGSNCapability) *SGSNCapability {
+	sgsnCap := &SGSNCapability{}
+
+	// Check GprsEnhancementsSupportIndicator (NULL type with tag 3)
+	if asn1SGSNCap.GprsEnhancementsSupportIndicator.Tag == 3 {
+		sgsnCap.GprsEnhancementsSupportIndicator = true
+	}
+
+	// Convert SupportedLCSCapabilitySets from BitString
+	if asn1SGSNCap.SupportedLCSCapabilitySets.BitLength > 0 {
+		lcsCaps := &SupportedLCSCapabilitySets{}
+		bits := asn1SGSNCap.SupportedLCSCapabilitySets
+
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet1 {
+			lcsCaps.LcsCapabilitySet1 = bits.At(asn1mapmodel.LCSCapabilitySet1) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet2 {
+			lcsCaps.LcsCapabilitySet2 = bits.At(asn1mapmodel.LCSCapabilitySet2) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet3 {
+			lcsCaps.LcsCapabilitySet3 = bits.At(asn1mapmodel.LCSCapabilitySet3) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet4 {
+			lcsCaps.LcsCapabilitySet4 = bits.At(asn1mapmodel.LCSCapabilitySet4) == 1
+		}
+		if bits.BitLength > asn1mapmodel.LCSCapabilitySet5 {
+			lcsCaps.LcsCapabilitySet5 = bits.At(asn1mapmodel.LCSCapabilitySet5) == 1
+		}
+
+		sgsnCap.SupportedLCSCapabilitySets = lcsCaps
+	}
+
+	return sgsnCap
+}

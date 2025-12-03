@@ -439,3 +439,113 @@ func convertVlrCapabilityToAsn1(vlrCap *VlrCapability) asn1mapmodel.VlrCapabilit
 
 	return asn1VlrCap
 }
+
+func (updGprsLoc *UpdateGprsLocation) Marshal() ([]byte, error) {
+	// Create UpdateGprsLocationArg structure from UpdateGprsLocation
+	updGprsLocArg, err := convertUpdateGprsLocationToUpdateGprsLocationArg(updGprsLoc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert UpdateGprsLocation to UpdateGprsLocationArg: %w", err)
+	}
+
+	// Encode to ASN.1 DER format
+	dataIE, err := asn1.Marshal(updGprsLocArg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ASN.1 UpdateGprsLocation: %w", err)
+	}
+
+	// Return complete Information Element (IE) with tag, length, and value
+	return dataIE, nil
+}
+
+func convertUpdateGprsLocationToUpdateGprsLocationArg(updGprsLoc *UpdateGprsLocation) (asn1mapmodel.UpdateGprsLocationArg, error) {
+	var updGprsLocArg asn1mapmodel.UpdateGprsLocationArg
+
+	// Encode IMSI from TBCD format
+	imsiTBCDbytes, err := utils.EncodeTBCDDigits(updGprsLoc.IMSI)
+	if err != nil {
+		return updGprsLocArg, fmt.Errorf("failed to encode IMSI: %w", err)
+	}
+
+	// Encode SGSNNumber from TBCD format
+	sgsnNumberTBCDbytes, err := utils.EncodeTBCDDigits(updGprsLoc.SGSNNumber)
+	if err != nil {
+		return updGprsLocArg, fmt.Errorf("failed to encode SGSNNumber: %w", err)
+	}
+
+	// Encode SGSNAddress from IP string
+	sgsnAddressBytes, err := utils.BuildGSNAddress(updGprsLoc.SGSNAddress)
+	if err != nil {
+		return updGprsLocArg, fmt.Errorf("failed to encode SGSNAddress: %w", err)
+	}
+
+	// Create encoded SGSNNumber address string
+	encodedSGSNNumber := asn1mapmodel.EncodeAddressString(
+		asn1mapmodel.ExtensionNo,
+		asn1mapmodel.AddressNatureInternational,
+		asn1mapmodel.NumberingPlanISDN,
+		sgsnNumberTBCDbytes)
+
+	// Fill the fields in the return structure
+	updGprsLocArg.IMSI = imsiTBCDbytes
+	updGprsLocArg.SGSNNumber = encodedSGSNNumber
+	updGprsLocArg.SGSNAddress = sgsnAddressBytes
+
+	// Set optional SGSNCapability if present
+	if updGprsLoc.SGSNCapability != nil {
+		updGprsLocArg.SGSNCapability = convertSGSNCapabilityToAsn1(updGprsLoc.SGSNCapability)
+	}
+
+	return updGprsLocArg, nil
+}
+
+func convertSGSNCapabilityToAsn1(sgsnCap *SGSNCapability) asn1mapmodel.SGSNCapability {
+	var asn1SGSNCap asn1mapmodel.SGSNCapability
+
+	// Set GprsEnhancementsSupportIndicator as NULL if true
+	if sgsnCap.GprsEnhancementsSupportIndicator {
+		asn1SGSNCap.GprsEnhancementsSupportIndicator = asn1.RawValue{
+			Class: asn1.ClassContextSpecific,
+			Tag:   3,
+			Bytes: []byte{},
+		}
+	}
+
+	// Convert SupportedLCSCapabilitySets to BitString
+	if sgsnCap.SupportedLCSCapabilitySets != nil {
+		lcsCaps := sgsnCap.SupportedLCSCapabilitySets
+
+		var byteVal byte
+		var bitLength int
+		if lcsCaps.LcsCapabilitySet1 {
+			byteVal |= 0x80
+			bitLength = 1
+		}
+		if lcsCaps.LcsCapabilitySet2 {
+			byteVal |= 0x40
+			bitLength = 2
+		}
+		if lcsCaps.LcsCapabilitySet3 {
+			byteVal |= 0x20
+			bitLength = 3
+		}
+		if lcsCaps.LcsCapabilitySet4 {
+			byteVal |= 0x10
+			bitLength = 4
+		}
+		if lcsCaps.LcsCapabilitySet5 {
+			byteVal |= 0x08
+			bitLength = 5
+		}
+
+		if bitLength == 0 {
+			bitLength = 2
+		}
+
+		asn1SGSNCap.SupportedLCSCapabilitySets = asn1.BitString{
+			Bytes:     []byte{byteVal},
+			BitLength: bitLength,
+		}
+	}
+
+	return asn1SGSNCap
+}

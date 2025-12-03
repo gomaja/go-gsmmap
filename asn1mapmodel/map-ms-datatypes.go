@@ -101,6 +101,84 @@ func (updLoc *UpdateLocationArg) GetImsiString() (string, error) {
 	return utils.DecodeTBCDDigits(updLoc.IMSI)
 }
 
+// UpdateGprsLocationArg represents the UpdateGprsLocation operation argument
+// UpdateGprsLocationArg ::= SEQUENCE {
+//
+//	imsi                         IMSI,
+//	sgsn-Number                  ISDN-AddressString,
+//	sgsn-Address                 GSN-Address,
+//	extensionContainer           ExtensionContainer OPTIONAL,
+//	...,
+//	sgsn-Capability              [0] SGSN-Capability OPTIONAL,
+//	informPreviousNetworkEntity  [1] NULL OPTIONAL,
+//	ps-LCS-NotSupportedByUE      [2] NULL OPTIONAL,
+//	v-gmlc-Address               [3] GSN-Address OPTIONAL,
+//	add-info                     [4] ADD-Info OPTIONAL,
+//	eps-info                     [5] EPS-Info OPTIONAL,
+//	servingNodeTypeIndicator     [6] NULL OPTIONAL,
+//	skipSubscriberDataUpdate     [7] NULL OPTIONAL,
+//	usedRAT-Type                 [8] Used-RAT-Type OPTIONAL,
+//	gprsSubscriptionDataNotNeeded [9] NULL OPTIONAL,
+//	nodeTypeIndicator            [10] NULL OPTIONAL,
+//	areaRestricted               [11] NULL OPTIONAL,
+//	ue-reachableIndicator        [12] NULL OPTIONAL,
+//	epsSubscriptionDataNotNeeded [13] NULL OPTIONAL,
+//	ue-srvcc-Capability          [14] UE-SRVCC-Capability OPTIONAL,
+//	eplmn-List                   [15] EPLMN-List OPTIONAL,
+//	mmeNumberforMTSMS            [16] ISDN-AddressString OPTIONAL,
+//	smsRegisterRequest           [17] SMSRegisterRequest OPTIONAL,
+//	sms-Only                     [18] NULL OPTIONAL }
+type UpdateGprsLocationArg struct {
+	IMSI           IMSI              // Required
+	SGSNNumber     ISDNAddressString // Required
+	SGSNAddress    GSNAddress        // Required
+	SGSNCapability SGSNCapability    `asn1:"tag:0,optional"` // [0] OPTIONAL
+}
+
+// SGSNCapability represents the capabilities of an SGSN
+// SGSN-Capability ::= SEQUENCE{
+//
+//	solsaSupportIndicator                        NULL OPTIONAL,
+//	extensionContainer                           [1] ExtensionContainer OPTIONAL,
+//	...,
+//	superChargerSupportedInServingNetworkEntity  [2] SuperChargerInfo OPTIONAL,
+//	gprsEnhancementsSupportIndicator             [3] NULL OPTIONAL,
+//	supportedCamelPhases                         [4] SupportedCamelPhases OPTIONAL,
+//	supportedLCS-CapabilitySets                  [5] SupportedLCS-CapabilitySets OPTIONAL,
+//	offeredCamel4CSIs                            [6] OfferedCamel4CSIs OPTIONAL,
+//	smsCallBarringSupportIndicator               [7] NULL OPTIONAL,
+//	supportedRAT-TypesIndicator                  [8] SupportedRAT-Types OPTIONAL,
+//	supportedFeatures                            [9] SupportedFeatures OPTIONAL,
+//	t-adsDataRetrieval                           [10] NULL OPTIONAL,
+//	homogeneousSupportOfIMSVoiceOverPSSessions   [11] BOOLEAN OPTIONAL,
+//	cancellationTypeInitialAttach                [12] NULL OPTIONAL,
+//	additionalMsisdnSupport                      [13] NULL OPTIONAL,
+//	msisdn-lessOperation-Supported               [14] NULL OPTIONAL }
+//
+// SupportedLCS-CapabilitySets ::= BIT STRING {
+//
+//	lcsCapabilitySet1 (0),
+//	lcsCapabilitySet2 (1),
+//	lcsCapabilitySet3 (2),
+//	lcsCapabilitySet4 (3),
+//	lcsCapabilitySet5 (4) } (SIZE (2..16))
+type SGSNCapability struct {
+
+	// In a case observed, the value appeared: asn1.RawValue{Class: asn1.ClassContextSpecific, Tag: asn1.TagBitString}
+	GprsEnhancementsSupportIndicator asn1.RawValue `asn1:"tag:3,optional"`
+
+	SupportedLCSCapabilitySets asn1.BitString `asn1:"tag:5,optional"`
+}
+
+func (updGprsLoc *UpdateGprsLocationArg) GetImsiString() (string, error) {
+	return utils.DecodeTBCDDigits(updGprsLoc.IMSI)
+}
+
+func (updGprsLoc *UpdateGprsLocationArg) GetSGSNNumberString() (string, error) {
+	_, _, _, Digits := DecodeAddressString(updGprsLoc.SGSNNumber)
+	return utils.DecodeTBCDDigits(Digits)
+}
+
 func (updLoc *UpdateLocationArg) GetMSCNumberString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(updLoc.MSCNumber)
 	return utils.DecodeTBCDDigits(Digits)
@@ -109,4 +187,8 @@ func (updLoc *UpdateLocationArg) GetMSCNumberString() (string, error) {
 func (updLoc *UpdateLocationArg) GetVLRNumberString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(updLoc.VLRNumber)
 	return utils.DecodeTBCDDigits(Digits)
+}
+
+func (updGprsLoc *UpdateGprsLocationArg) GetSGSNAddressString() (string, error) {
+	return utils.ParseGSNAddress(updGprsLoc.SGSNAddress)
 }

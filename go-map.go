@@ -63,3 +63,16 @@ type SupportedLCSCapabilitySets struct {
 	LcsCapabilitySet4 bool
 	LcsCapabilitySet5 bool
 }
+
+type UpdateGprsLocation struct {
+	IMSI        string
+	SGSNNumber  string
+	SGSNAddress string
+
+	SGSNCapability *SGSNCapability
+}
+
+type SGSNCapability struct {
+	GprsEnhancementsSupportIndicator bool
+	SupportedLCSCapabilitySets       *SupportedLCSCapabilitySets
+}
