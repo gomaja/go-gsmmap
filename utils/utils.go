@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/hex"
 	"fmt"
+	"net"
 )
 
 // EncodeTBCDDigits creates a TBCD-encoded byte slice according to "ETSI TS 129 002 V15.5.0 (2019-07)" page 459.
@@ -60,4 +61,95 @@ func swapNibbles(data []byte) []byte {
 		swapped[i] = ((b & 0x0F) << 4) | ((b & 0xF0) >> 4)
 	}
 	return swapped
+}
+
+// BuildGSNAddress encodes an IPv4/IPv6 address into the GSN Address format.
+//
+// Octets are coded according to TS 3GPP TS 23.003 [17]
+//
+// Format:
+//
+//	-------------------------------------------------------
+//
+// | Address Type (2 bits) | Address Length (6 bits) | ...address bytes...
+//
+//	-------------------------------------------------------
+func BuildGSNAddress(ipStr string) ([]byte, error) {
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return nil, fmt.Errorf("invalid IP: %s", ipStr)
+	}
+
+	var addrType uint8
+	var addrBytes []byte
+
+	if ipv4 := ip.To4(); ipv4 != nil {
+		// IPv4
+		addrType = 0
+		addrBytes = ipv4
+	} else if ipv6 := ip.To16(); ipv6 != nil {
+		// IPv6
+		addrType = 1
+		addrBytes = ipv6
+	} else {
+		return nil, fmt.Errorf("unknown IP type")
+	}
+
+	addrLen := uint8(len(addrBytes)) // 4 or 16
+
+	// Pack type and length:
+	//   type = 2 MSB bits
+	//   length = 6 LSB bits
+	header := (addrType << 6) | (addrLen & 0x3F)
+
+	// Final result: 1-byte header + raw bytes
+	result := make([]byte, 1+len(addrBytes))
+	result[0] = header
+	copy(result[1:], addrBytes)
+
+	return result, nil
+}
+
+// ParseGSNAddress decodes a GSN Address format into an IPv4/IPv6 string.
+//
+// Octets are coded according to TS 3GPP TS 23.003 [17]
+//
+// Format:
+//
+//	-------------------------------------------------------
+//
+// | Address Type (2 bits) | Address Length (6 bits) | ...address bytes...
+//
+//	-------------------------------------------------------
+func ParseGSNAddress(data []byte) (string, error) {
+	if len(data) < 1 {
+		return "", fmt.Errorf("GSN address too short")
+	}
+
+	header := data[0]
+	addrType := (header >> 6) & 0x03
+	addrLen := header & 0x3F
+
+	if len(data) < 1+int(addrLen) {
+		return "", fmt.Errorf("GSN address data too short: expected %d bytes, got %d", 1+int(addrLen), len(data))
+	}
+
+	addrBytes := data[1 : 1+addrLen]
+
+	switch addrType {
+	case 0: // IPv4
+		if addrLen != 4 {
+			return "", fmt.Errorf("invalid IPv4 address length: %d", addrLen)
+		}
+		ip := net.IP(addrBytes)
+		return ip.String(), nil
+	case 1: // IPv6
+		if addrLen != 16 {
+			return "", fmt.Errorf("invalid IPv6 address length: %d", addrLen)
+		}
+		ip := net.IP(addrBytes)
+		return ip.String(), nil
+	default:
+		return "", fmt.Errorf("unknown address type: %d", addrType)
+	}
 }

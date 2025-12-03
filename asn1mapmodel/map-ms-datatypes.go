@@ -188,3 +188,7 @@ func (updLoc *UpdateLocationArg) GetVLRNumberString() (string, error) {
 	_, _, _, Digits := DecodeAddressString(updLoc.VLRNumber)
 	return utils.DecodeTBCDDigits(Digits)
 }
+
+func (updGprsLoc *UpdateGprsLocationArg) GetSGSNAddressString() (string, error) {
+	return utils.ParseGSNAddress(updGprsLoc.SGSNAddress)
+}
