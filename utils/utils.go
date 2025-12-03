@@ -87,12 +87,10 @@ func BuildGSNAddress(ipStr string) ([]byte, error) {
 		// IPv4
 		addrType = 0
 		addrBytes = ipv4
-	} else if ipv6 := ip.To16(); ipv6 != nil {
+	} else {
 		// IPv6
 		addrType = 1
-		addrBytes = ipv6
-	} else {
-		return nil, fmt.Errorf("unknown IP type")
+		addrBytes = ip.To16()
 	}
 
 	addrLen := uint8(len(addrBytes)) // 4 or 16
