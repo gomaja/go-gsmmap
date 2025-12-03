@@ -227,6 +227,129 @@ func TestParseMoFsm(t *testing.T) {
 	}
 }
 
+func TestParseUpdateGprsLocation(t *testing.T) {
+	// Test cases
+	tests := []struct {
+		name                   string
+		hexString              string
+		expectError            bool
+		expectedIMSI           string
+		expectedSGSNNumber     string
+		expectedSGSNAddress    string
+		expectedGprsEnhSupport bool
+		expectedLCSCapSets     *SupportedLCSCapabilitySets
+	}{
+		{
+			name:                   "Valid UpdateGprsLocation (IPv4) With SGSNCapability",
+			hexString:              "3022040862006630020000f20407911487390120f3040504d5378647a006830085020640",
+			expectError:            false,
+			expectedIMSI:           "260066032000002",
+			expectedSGSNNumber:     "41789310023",
+			expectedSGSNAddress:    "213.55.134.71",
+			expectedGprsEnhSupport: true,
+			expectedLCSCapSets:     &SupportedLCSCapabilitySets{LcsCapabilitySet2: true},
+		},
+		{
+			name:                   "Valid UpdateGprsLocation with SGSNCapability",
+			hexString:              "301e04082143658709214365040791261806630000040504c0a80101a0028300",
+			expectError:            false,
+			expectedIMSI:           "1234567890123456",
+			expectedSGSNNumber:     "628160360000",
+			expectedSGSNAddress:    "192.168.1.1",
+			expectedGprsEnhSupport: true,
+			expectedLCSCapSets:     nil,
+		},
+		{
+			name:                   "Valid UpdateGprsLocation with SGSNCapability and LCS",
+			hexString:              "302204082143658709214365040791261806630000040504c0a80101a0068300850206c0",
+			expectError:            false,
+			expectedIMSI:           "1234567890123456",
+			expectedSGSNNumber:     "628160360000",
+			expectedSGSNAddress:    "192.168.1.1",
+			expectedGprsEnhSupport: true,
+			expectedLCSCapSets: &SupportedLCSCapabilitySets{
+				LcsCapabilitySet1: true,
+				LcsCapabilitySet2: true,
+				LcsCapabilitySet3: false,
+				LcsCapabilitySet4: false,
+				LcsCapabilitySet5: false,
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Decode hex string to bytes
+			originalBytes, err := hex.DecodeString(tc.hexString)
+			if err != nil {
+				t.Fatalf("Failed to decode hex string: %v", err)
+			}
+
+			// Parse bytes to UpdateGprsLocation struct
+			updGprsLoc, _, err := ParseUpdateGprsLocation(originalBytes)
+			if (err != nil) != tc.expectError {
+				t.Fatalf("Unexpected error status during parsing: got %v, expected error: %v", err, tc.expectError)
+			}
+
+			// If we expect an error and got one, test passes
+			if tc.expectError && err != nil {
+				t.Logf("Expected error occurred in test case '%s': %v", tc.name, err)
+				return
+			}
+
+			// Verify parsed values match expected values
+			if updGprsLoc.IMSI != tc.expectedIMSI {
+				t.Errorf("IMSI mismatch: got %s, expected %s", updGprsLoc.IMSI, tc.expectedIMSI)
+			}
+			if updGprsLoc.SGSNNumber != tc.expectedSGSNNumber {
+				t.Errorf("SGSNNumber mismatch: got %s, expected %s", updGprsLoc.SGSNNumber, tc.expectedSGSNNumber)
+			}
+			if updGprsLoc.SGSNAddress != tc.expectedSGSNAddress {
+				t.Errorf("SGSNAddress mismatch: got %s, expected %s", updGprsLoc.SGSNAddress, tc.expectedSGSNAddress)
+			}
+
+			// Verify SGSNCapability
+			if tc.expectedGprsEnhSupport {
+				if updGprsLoc.SGSNCapability == nil {
+					t.Error("Expected SGSNCapability but got nil")
+				} else if !updGprsLoc.SGSNCapability.GprsEnhancementsSupportIndicator {
+					t.Error("Expected GprsEnhancementsSupportIndicator to be true")
+				}
+			}
+
+			if tc.expectedLCSCapSets != nil {
+				if updGprsLoc.SGSNCapability == nil || updGprsLoc.SGSNCapability.SupportedLCSCapabilitySets == nil {
+					t.Error("Expected SupportedLCSCapabilitySets but got nil")
+				} else {
+					if diff := cmp.Diff(tc.expectedLCSCapSets, updGprsLoc.SGSNCapability.SupportedLCSCapabilitySets); diff != "" {
+						t.Errorf("SupportedLCSCapabilitySets mismatch (-expected +got):\n%s", diff)
+					}
+				}
+			}
+
+			// Marshal UpdateGprsLocation struct back to bytes and verify round-trip
+			marshaledBytes, err := updGprsLoc.Marshal()
+			if err != nil {
+				t.Fatalf("Failed to marshal UpdateGprsLocation: %v", err)
+			}
+
+			// Parse the marshaled bytes again and verify semantic equality
+			updGprsLoc2, _, err := ParseUpdateGprsLocation(marshaledBytes)
+			if err != nil {
+				t.Fatalf("Failed to re-parse marshaled UpdateGprsLocation: %v", err)
+			}
+
+			// Compare the two parsed structs (semantic round-trip)
+			if diff := cmp.Diff(updGprsLoc, updGprsLoc2); diff != "" {
+				t.Errorf("Round-trip semantic mismatch (-first +second):\n%s", diff)
+			}
+
+			t.Logf("Parsed UpdateGprsLocation: IMSI=%s, SGSNNumber=%s, SGSNAddress=%s",
+				updGprsLoc.IMSI, updGprsLoc.SGSNNumber, updGprsLoc.SGSNAddress)
+		})
+	}
+}
+
 func TestParseUpdateLocation(t *testing.T) {
 	// Test cases
 	tests := []struct {
