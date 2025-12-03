@@ -551,7 +551,7 @@ func convertSGSNCapabilityToAsn1(sgsnCap *SGSNCapability) asn1mapmodel.SGSNCapab
 }
 
 func (updLocRes *UpdateLocationRes) Marshal() ([]byte, error) {
-	// Create UpdateLocationRes structure from UpdateLocationRes
+	// Convert UpdateLocationRes to ASN.1 structure
 	updLocResArg, err := convertUpdateLocationResToAsn1(updLocRes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert UpdateLocationRes to asn1: %w", err)
