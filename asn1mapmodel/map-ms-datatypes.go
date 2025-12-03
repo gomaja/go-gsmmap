@@ -192,3 +192,38 @@ func (updLoc *UpdateLocationArg) GetVLRNumberString() (string, error) {
 func (updGprsLoc *UpdateGprsLocationArg) GetSGSNAddressString() (string, error) {
 	return utils.ParseGSNAddress(updGprsLoc.SGSNAddress)
 }
+
+// UpdateLocationRes represents the UpdateLocation operation result
+// UpdateLocationRes ::= SEQUENCE {
+//
+//	hlr-Number             ISDN-AddressString,
+//	extensionContainer     ExtensionContainer OPTIONAL,
+//	...,
+//	add-Capability         NULL OPTIONAL,
+//	pagingArea-Capability  [0]NULL OPTIONAL }
+type UpdateLocationRes struct {
+	HLRNumber ISDNAddressString // Required
+}
+
+func (updLocRes *UpdateLocationRes) GetHLRNumberString() (string, error) {
+	_, _, _, Digits := DecodeAddressString(updLocRes.HLRNumber)
+	return utils.DecodeTBCDDigits(Digits)
+}
+
+// UpdateGprsLocationRes represents the UpdateGprsLocation operation result
+// UpdateGprsLocationRes ::= SEQUENCE {
+//
+//	hlr-Number                    ISDN-AddressString,
+//	extensionContainer            ExtensionContainer OPTIONAL,
+//	...,
+//	add-Capability                NULL OPTIONAL,
+//	sgsn-mmeSeparationSupported   [0] NULL OPTIONAL,
+//	mmeRegisteredforSMS           [1] NULL OPTIONAL }
+type UpdateGprsLocationRes struct {
+	HLRNumber ISDNAddressString // Required
+}
+
+func (updGprsLocRes *UpdateGprsLocationRes) GetHLRNumberString() (string, error) {
+	_, _, _, Digits := DecodeAddressString(updGprsLocRes.HLRNumber)
+	return utils.DecodeTBCDDigits(Digits)
+}

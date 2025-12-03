@@ -350,6 +350,132 @@ func TestParseUpdateGprsLocation(t *testing.T) {
 	}
 }
 
+func TestParseUpdateLocationRes(t *testing.T) {
+	// Test cases
+	tests := []struct {
+		name              string
+		hexString         string
+		expectError       bool
+		expectedHLRNumber string
+	}{
+		{
+			name:              "Valid UpdateLocationRes",
+			hexString:         "300704059126180663",
+			expectError:       false,
+			expectedHLRNumber: "62816036",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Decode hex string to bytes
+			originalBytes, err := hex.DecodeString(tc.hexString)
+			if err != nil {
+				t.Fatalf("Failed to decode hex string: %v", err)
+			}
+
+			// Parse bytes to UpdateLocationRes struct
+			updLocRes, _, err := ParseUpdateLocationRes(originalBytes)
+			if (err != nil) != tc.expectError {
+				t.Fatalf("Unexpected error status during parsing: got %v, expected error: %v", err, tc.expectError)
+			}
+
+			// If we expect an error and got one, test passes
+			if tc.expectError && err != nil {
+				t.Logf("Expected error occurred in test case '%s': %v", tc.name, err)
+				return
+			}
+
+			// Verify parsed values match expected values
+			if updLocRes.HLRNumber != tc.expectedHLRNumber {
+				t.Errorf("HLRNumber mismatch: got %s, expected %s", updLocRes.HLRNumber, tc.expectedHLRNumber)
+			}
+
+			// Marshal UpdateLocationRes struct back to bytes and verify round-trip
+			marshaledBytes, err := updLocRes.Marshal()
+			if err != nil {
+				t.Fatalf("Failed to marshal UpdateLocationRes: %v", err)
+			}
+
+			// Parse the marshaled bytes again and verify semantic equality
+			updLocRes2, _, err := ParseUpdateLocationRes(marshaledBytes)
+			if err != nil {
+				t.Fatalf("Failed to re-parse marshaled UpdateLocationRes: %v", err)
+			}
+
+			// Compare the two parsed structs (semantic round-trip)
+			if diff := cmp.Diff(updLocRes, updLocRes2); diff != "" {
+				t.Errorf("Round-trip semantic mismatch (-first +second):\n%s", diff)
+			}
+
+			t.Logf("Parsed UpdateLocationRes: HLRNumber=%s", updLocRes.HLRNumber)
+		})
+	}
+}
+
+func TestParseUpdateGprsLocationRes(t *testing.T) {
+	// Test cases
+	tests := []struct {
+		name              string
+		hexString         string
+		expectError       bool
+		expectedHLRNumber string
+	}{
+		{
+			name:              "Valid UpdateGprsLocationRes",
+			hexString:         "300704059126180663",
+			expectError:       false,
+			expectedHLRNumber: "62816036",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			// Decode hex string to bytes
+			originalBytes, err := hex.DecodeString(tc.hexString)
+			if err != nil {
+				t.Fatalf("Failed to decode hex string: %v", err)
+			}
+
+			// Parse bytes to UpdateGprsLocationRes struct
+			updGprsLocRes, _, err := ParseUpdateGprsLocationRes(originalBytes)
+			if (err != nil) != tc.expectError {
+				t.Fatalf("Unexpected error status during parsing: got %v, expected error: %v", err, tc.expectError)
+			}
+
+			// If we expect an error and got one, test passes
+			if tc.expectError && err != nil {
+				t.Logf("Expected error occurred in test case '%s': %v", tc.name, err)
+				return
+			}
+
+			// Verify parsed values match expected values
+			if updGprsLocRes.HLRNumber != tc.expectedHLRNumber {
+				t.Errorf("HLRNumber mismatch: got %s, expected %s", updGprsLocRes.HLRNumber, tc.expectedHLRNumber)
+			}
+
+			// Marshal UpdateGprsLocationRes struct back to bytes and verify round-trip
+			marshaledBytes, err := updGprsLocRes.Marshal()
+			if err != nil {
+				t.Fatalf("Failed to marshal UpdateGprsLocationRes: %v", err)
+			}
+
+			// Parse the marshaled bytes again and verify semantic equality
+			updGprsLocRes2, _, err := ParseUpdateGprsLocationRes(marshaledBytes)
+			if err != nil {
+				t.Fatalf("Failed to re-parse marshaled UpdateGprsLocationRes: %v", err)
+			}
+
+			// Compare the two parsed structs (semantic round-trip)
+			if diff := cmp.Diff(updGprsLocRes, updGprsLocRes2); diff != "" {
+				t.Errorf("Round-trip semantic mismatch (-first +second):\n%s", diff)
+			}
+
+			t.Logf("Parsed UpdateGprsLocationRes: HLRNumber=%s", updGprsLocRes.HLRNumber)
+		})
+	}
+}
+
 func TestParseUpdateLocation(t *testing.T) {
 	// Test cases
 	tests := []struct {

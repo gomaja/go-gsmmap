@@ -76,3 +76,11 @@ type SGSNCapability struct {
 	GprsEnhancementsSupportIndicator bool
 	SupportedLCSCapabilitySets       *SupportedLCSCapabilitySets
 }
+
+type UpdateLocationRes struct {
+	HLRNumber string
+}
+
+type UpdateGprsLocationRes struct {
+	HLRNumber string
+}

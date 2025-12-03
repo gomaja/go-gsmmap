@@ -374,3 +374,63 @@ func convertAsn1ToSGSNCapability(asn1SGSNCap *asn1mapmodel.SGSNCapability) *SGSN
 
 	return sgsnCap
 }
+
+// ParseUpdateLocationRes takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
+func ParseUpdateLocationRes(dataIE []byte) (*UpdateLocationRes, []byte, error) {
+	derBytes, err := tcapUtils.MakeDER(dataIE)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ParseUpdateLocationResDER(derBytes)
+}
+
+// ParseUpdateLocationResDER takes a complete bytes IE with DER ASN1 encoding
+func ParseUpdateLocationResDER(dataIE []byte) (*UpdateLocationRes, []byte, error) {
+	var updLocRes asn1mapmodel.UpdateLocationRes
+
+	rest, err := asn1.Unmarshal(dataIE, &updLocRes)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 UpdateLocationRes: %v", err)
+	}
+
+	var result UpdateLocationRes
+	var hlrErr error
+
+	result.HLRNumber, hlrErr = updLocRes.GetHLRNumberString()
+	if hlrErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode HLRNumber: %w", hlrErr)
+	}
+
+	return &result, rest, nil
+}
+
+// ParseUpdateGprsLocationRes takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
+func ParseUpdateGprsLocationRes(dataIE []byte) (*UpdateGprsLocationRes, []byte, error) {
+	derBytes, err := tcapUtils.MakeDER(dataIE)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ParseUpdateGprsLocationResDER(derBytes)
+}
+
+// ParseUpdateGprsLocationResDER takes a complete bytes IE with DER ASN1 encoding
+func ParseUpdateGprsLocationResDER(dataIE []byte) (*UpdateGprsLocationRes, []byte, error) {
+	var updGprsLocRes asn1mapmodel.UpdateGprsLocationRes
+
+	rest, err := asn1.Unmarshal(dataIE, &updGprsLocRes)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 UpdateGprsLocationRes: %v", err)
+	}
+
+	var result UpdateGprsLocationRes
+	var hlrErr error
+
+	result.HLRNumber, hlrErr = updGprsLocRes.GetHLRNumberString()
+	if hlrErr != nil {
+		return nil, nil, fmt.Errorf("failed to decode HLRNumber: %w", hlrErr)
+	}
+
+	return &result, rest, nil
+}

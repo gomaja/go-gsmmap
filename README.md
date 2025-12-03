@@ -23,13 +23,16 @@ go get github.com/gomaja/go-gsmmap
 
 ### MAP Messages
 
-| MAP Message                                            | Abbreviation   | Reference                                | Supported |
-|--------------------------------------------------------|----------------|------------------------------------------|-----------|
-| Invoke Send Routing Info For Short Message             | SRI-for-SM-Req | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Return Result Last Send Routing Info For Short Message | SRI-SM-Resp    | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Invoke Mt Forward Short Message                        | MT-ForwardSM   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Invoke MO Forward Short Message                        | MO-ForwardSM   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
-| Invoke Update Location                                 | UpdateLocation | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| MAP Message                                            | Abbreviation        | Reference                                | Supported |
+|--------------------------------------------------------|---------------------|------------------------------------------|-----------|
+| Invoke Send Routing Info For Short Message             | SRI-for-SM-Req      | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Return Result Last Send Routing Info For Short Message | SRI-SM-Resp         | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke Mt Forward Short Message                        | MT-ForwardSM        | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke MO Forward Short Message                        | MO-ForwardSM        | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke Update Location                                 | UpdateLocation      | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Return Result Update Location                          | UpdateLocation-Res  | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Invoke Update GPRS Location                            | UpdateGprsLocation  | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
+| Return Result Update GPRS Location                     | UpdateGprsLoc-Res   | 3GPP TS 29.002 version 15.5.0 Release 15 | ✅         |
 
 ## Dependencies
 

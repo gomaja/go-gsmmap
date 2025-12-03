@@ -549,3 +549,77 @@ func convertSGSNCapabilityToAsn1(sgsnCap *SGSNCapability) asn1mapmodel.SGSNCapab
 
 	return asn1SGSNCap
 }
+
+func (updLocRes *UpdateLocationRes) Marshal() ([]byte, error) {
+	// Convert UpdateLocationRes to ASN.1 structure
+	updLocResArg, err := convertUpdateLocationResToAsn1(updLocRes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert UpdateLocationRes to asn1: %w", err)
+	}
+
+	// Encode to ASN.1 DER format
+	dataIE, err := asn1.Marshal(updLocResArg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ASN.1 UpdateLocationRes: %w", err)
+	}
+
+	return dataIE, nil
+}
+
+func convertUpdateLocationResToAsn1(updLocRes *UpdateLocationRes) (asn1mapmodel.UpdateLocationRes, error) {
+	var result asn1mapmodel.UpdateLocationRes
+
+	// Encode HLRNumber from TBCD format
+	hlrTBCDbytes, err := utils.EncodeTBCDDigits(updLocRes.HLRNumber)
+	if err != nil {
+		return result, fmt.Errorf("failed to encode HLRNumber: %w", err)
+	}
+
+	// Create encoded HLRNumber address string
+	encodedHLRNumber := asn1mapmodel.EncodeAddressString(
+		asn1mapmodel.ExtensionNo,
+		asn1mapmodel.AddressNatureInternational,
+		asn1mapmodel.NumberingPlanISDN,
+		hlrTBCDbytes)
+
+	result.HLRNumber = encodedHLRNumber
+
+	return result, nil
+}
+
+func (updGprsLocRes *UpdateGprsLocationRes) Marshal() ([]byte, error) {
+	// Convert UpdateGprsLocationRes to ASN.1 structure
+	updGprsLocResArg, err := convertUpdateGprsLocationResToAsn1(updGprsLocRes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert UpdateGprsLocationRes to asn1: %w", err)
+	}
+
+	// Encode to ASN.1 DER format
+	dataIE, err := asn1.Marshal(updGprsLocResArg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ASN.1 UpdateGprsLocationRes: %w", err)
+	}
+
+	return dataIE, nil
+}
+
+func convertUpdateGprsLocationResToAsn1(updGprsLocRes *UpdateGprsLocationRes) (asn1mapmodel.UpdateGprsLocationRes, error) {
+	var result asn1mapmodel.UpdateGprsLocationRes
+
+	// Encode HLRNumber from TBCD format
+	hlrTBCDbytes, err := utils.EncodeTBCDDigits(updGprsLocRes.HLRNumber)
+	if err != nil {
+		return result, fmt.Errorf("failed to encode HLRNumber: %w", err)
+	}
+
+	// Create encoded HLRNumber address string
+	encodedHLRNumber := asn1mapmodel.EncodeAddressString(
+		asn1mapmodel.ExtensionNo,
+		asn1mapmodel.AddressNatureInternational,
+		asn1mapmodel.NumberingPlanISDN,
+		hlrTBCDbytes)
+
+	result.HLRNumber = encodedHLRNumber
+
+	return result, nil
+}
