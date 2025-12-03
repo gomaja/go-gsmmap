@@ -588,7 +588,7 @@ func convertUpdateLocationResToAsn1(updLocRes *UpdateLocationRes) (asn1mapmodel.
 }
 
 func (updGprsLocRes *UpdateGprsLocationRes) Marshal() ([]byte, error) {
-	// Create UpdateGprsLocationRes structure from UpdateGprsLocationRes
+	// Convert UpdateGprsLocationRes to ASN.1 structure
 	updGprsLocResArg, err := convertUpdateGprsLocationResToAsn1(updGprsLocRes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert UpdateGprsLocationRes to asn1: %w", err)
