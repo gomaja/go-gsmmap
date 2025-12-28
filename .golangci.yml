@@ -40,3 +40,5 @@ linters:
         - "-ST1020"  # comment on exported function
         - "-ST1021"  # comment on exported type
         - "-ST1022"  # comment on exported var
+        - "-SA4006"  # unused value (SonarCloud covers this)
+        - "-QF1001"  # De Morgan's law suggestion (style preference)
