@@ -52,7 +52,7 @@ const (
 	TargetCellOutsideGroupCallArea
 	NumberOfPWAttemptsViolation
 	NumberChanged
-	busySubscriber // TODO: export with solving duplicate issue
+	ErrorBusySubscriber
 	NoSubscriberReply
 	ForwardingFailed
 	OrNotAllowed
@@ -115,7 +115,7 @@ var errorStrings = map[Error]string{
 	PwRegistrationFailure:          "PwRegistrationFailure",
 	NegativePWCheck:                "NegativePWCheck",
 	NoRoamingNumberAvailable:       "NoRoamingNumberAvailable",
-	busySubscriber:                 "BusySubscriber",
+	ErrorBusySubscriber:            "BusySubscriber",
 	NoSubscriberReply:              "NoSubscriberReply",
 	ForwardingFailed:               "ForwardingFailed",
 	OrNotAllowed:                   "OrNotAllowed",
