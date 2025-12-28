@@ -18,6 +18,9 @@ linters:
     # Covered by SonarCloud - security
     - gosec          # security issues
 
+    # Covered by SonarCloud - bugs
+    - ineffassign    # ineffectual assignments
+
   settings:
     revive:
       rules:
@@ -37,10 +40,3 @@ linters:
         - "-ST1020"  # comment on exported function
         - "-ST1021"  # comment on exported type
         - "-ST1022"  # comment on exported var
-
-issues:
-  # Don't fail on ineffassign for now (SonarCloud will catch these)
-  exclude-rules:
-    - linters:
-        - ineffassign
-      source: "rest"
