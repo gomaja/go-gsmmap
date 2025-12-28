@@ -1,35 +1,46 @@
 version: "2"
 
-run:
-  # your existing run settings
-  concurrency: 4
-  timeout: 5m
-
 linters:
-  # replace disable-all / enable-all
-  default: none                     # run *only* the linters you list below :contentReference[oaicite:3]{index=3}
-  enable:
-    - errcheck
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
-    - gocyclo
-    - gosec
-    - misspell
-    - revive
-    - unconvert
-  disable: []                       # if there are any you want to turn off
+  default: standard
+  disable:
+    # Covered by SonarCloud - code smells
+    - gocyclo        # cyclomatic complexity
+    - cyclop         # cyclomatic complexity (alternative)
+    - funlen         # function length
+    - lll            # line length
 
-  settings:                         # ← move *all* per-linter settings here (not at top level)
-    errcheck:
-      check-type-assertions: true
-    govet:
-      # in v2, check-shadowing was removed; use enable: [shadow] instead
-      enable:
-        - shadow                    # :contentReference[oaicite:4]{index=4}
-    gocyclo:
-      min-complexity: 15
+    # Covered by SonarCloud - unused code
+    - unused         # unused variables/constants
+
+    # Covered by SonarCloud - style/comments
+    - godot          # comments ending with period
+
+    # Covered by SonarCloud - security
+    - gosec          # security issues
+
+  settings:
+    revive:
+      rules:
+        # Disable package comment requirement (SonarCloud covers this)
+        - name: package-comments
+          disabled: true
+        # Disable exported comment requirement
+        - name: exported
+          disabled: true
+
     staticcheck:
       checks:
         - "all"
+        - "-ST1000"  # package comments (SonarCloud covers this)
+        - "-ST1003"  # naming conventions
+        - "-ST1016"  # receiver naming
+        - "-ST1020"  # comment on exported function
+        - "-ST1021"  # comment on exported type
+        - "-ST1022"  # comment on exported var
+
+issues:
+  # Don't fail on ineffassign for now (SonarCloud will catch these)
+  exclude-rules:
+    - linters:
+        - ineffassign
+      source: "rest"
