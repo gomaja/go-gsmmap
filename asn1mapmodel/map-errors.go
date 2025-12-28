@@ -8,137 +8,137 @@ type Error int
 // Error constants
 const (
 	_ Error = iota
-	UnknownSubscriber
+	ErrorUnknownSubscriber
 	_
-	UnknownMSC
+	ErrorUnknownMSC
 	_
-	UnidentifiedSubscriber
-	AbsentSubscriberSM
-	UnknownEquipment
-	RoamingNotAllowed
-	IllegalSubscriber
-	BearerServiceNotProvisioned
-	TeleserviceNotProvisioned
-	IllegalEquipment
-	CallBarred
-	ForwardingViolation
-	CugReject
-	IllegalSSOperation
-	SsErrorStatus
-	SsNotAvailable
-	SsSubscriptionViolation
-	SsIncompatibility
-	FacilityNotSupported
-	OngoingGroupCall
-	_
-	_
-	NoHandoverNumberAvailable
-	SubsequentHandoverFailure
-	AbsentSubscriber
-	IncompatibleTerminal
-	ShortTermDenial
-	LongTermDenial
-	SubscriberBusyForMTSMS
-	SmDeliveryFailure
-	MessageWaitingListFull
-	SystemFailure
-	DataMissing
-	UnexpectedDataValue
-	PwRegistrationFailure
-	NegativePWCheck
-	NoRoamingNumberAvailable
+	ErrorUnidentifiedSubscriber
+	ErrorAbsentSubscriberSM
+	ErrorUnknownEquipment
+	ErrorRoamingNotAllowed
+	ErrorIllegalSubscriber
+	ErrorBearerServiceNotProvisioned
+	ErrorTeleserviceNotProvisioned
+	ErrorIllegalEquipment
+	ErrorCallBarred
+	ErrorForwardingViolation
+	ErrorCugReject
+	ErrorIllegalSSOperation
+	ErrorSsErrorStatus
+	ErrorSsNotAvailable
+	ErrorSsSubscriptionViolation
+	ErrorSsIncompatibility
+	ErrorFacilityNotSupported
+	ErrorOngoingGroupCall
 	_
 	_
-	TargetCellOutsideGroupCallArea
-	NumberOfPWAttemptsViolation
-	NumberChanged
-	busySubscriber // TODO: export with solving duplicate issue
-	NoSubscriberReply
-	ForwardingFailed
-	OrNotAllowed
-	AtiNotAllowed
-	NoGroupCallNumberAvailable
-	ResourceLimitation
-	UnauthorizedRequestingNetwork
-	UnauthorizedLCSClient
-	PositionMethodFailure
+	ErrorNoHandoverNumberAvailable
+	ErrorSubsequentHandoverFailure
+	ErrorAbsentSubscriber
+	ErrorIncompatibleTerminal
+	ErrorShortTermDenial
+	ErrorLongTermDenial
+	ErrorSubscriberBusyForMTSMS
+	ErrorSmDeliveryFailure
+	ErrorMessageWaitingListFull
+	ErrorSystemFailure
+	ErrorDataMissing
+	ErrorUnexpectedDataValue
+	ErrorPwRegistrationFailure
+	ErrorNegativePWCheck
+	ErrorNoRoamingNumberAvailable
+	_
+	_
+	ErrorTargetCellOutsideGroupCallArea
+	ErrorNumberOfPWAttemptsViolation
+	ErrorNumberChanged
+	ErrorBusySubscriber
+	ErrorNoSubscriberReply
+	ErrorForwardingFailed
+	ErrorOrNotAllowed
+	ErrorAtiNotAllowed
+	ErrorNoGroupCallNumberAvailable
+	ErrorResourceLimitation
+	ErrorUnauthorizedRequestingNetwork
+	ErrorUnauthorizedLCSClient
+	ErrorPositionMethodFailure
 	_
 	_
 	_
-	UnknownOrUnreachableLCSClient
-	MmEventNotSupported
-	AtsiNotAllowed
-	AtmNotAllowed
-	InformationNotAvailable
-	_
-	_
+	ErrorUnknownOrUnreachableLCSClient
+	ErrorMmEventNotSupported
+	ErrorAtsiNotAllowed
+	ErrorAtmNotAllowed
+	ErrorInformationNotAvailable
 	_
 	_
 	_
 	_
 	_
 	_
-	UnknownAlphabet
-	UssdBusy
+	_
+	_
+	ErrorUnknownAlphabet
+	ErrorUssdBusy
 )
 
 // Error to string mapping
 var errorStrings = map[Error]string{
-	UnknownSubscriber:              "UnknownSubscriber",
-	UnknownMSC:                     "UnknownMSC",
-	UnidentifiedSubscriber:         "UnidentifiedSubscriber",
-	AbsentSubscriberSM:             "AbsentSubscriberSM",
-	UnknownEquipment:               "UnknownEquipment",
-	RoamingNotAllowed:              "RoamingNotAllowed",
-	IllegalSubscriber:              "IllegalSubscriber",
-	BearerServiceNotProvisioned:    "BearerServiceNotProvisioned",
-	TeleserviceNotProvisioned:      "TeleserviceNotProvisioned",
-	IllegalEquipment:               "IllegalEquipment",
-	CallBarred:                     "CallBarred",
-	ForwardingViolation:            "ForwardingViolation",
-	CugReject:                      "CugReject",
-	IllegalSSOperation:             "IllegalSSOperation",
-	SsErrorStatus:                  "SsErrorStatus",
-	SsNotAvailable:                 "SsNotAvailable",
-	SsSubscriptionViolation:        "SsSubscriptionViolation",
-	SsIncompatibility:              "SsIncompatibility",
-	FacilityNotSupported:           "FacilityNotSupported",
-	OngoingGroupCall:               "OngoingGroupCall",
-	NoHandoverNumberAvailable:      "NoHandoverNumberAvailable",
-	AbsentSubscriber:               "AbsentSubscriber",
-	SubscriberBusyForMTSMS:         "SubscriberBusyForMTSMS",
-	SmDeliveryFailure:              "SmDeliveryFailure",
-	MessageWaitingListFull:         "MessageWaitingListFull",
-	SystemFailure:                  "SystemFailure",
-	DataMissing:                    "DataMissing",
-	UnexpectedDataValue:            "UnexpectedDataValue",
-	PwRegistrationFailure:          "PwRegistrationFailure",
-	NegativePWCheck:                "NegativePWCheck",
-	NoRoamingNumberAvailable:       "NoRoamingNumberAvailable",
-	busySubscriber:                 "BusySubscriber",
-	NoSubscriberReply:              "NoSubscriberReply",
-	ForwardingFailed:               "ForwardingFailed",
-	OrNotAllowed:                   "OrNotAllowed",
-	AtiNotAllowed:                  "AtiNotAllowed",
-	NoGroupCallNumberAvailable:     "NoGroupCallNumberAvailable",
-	ResourceLimitation:             "ResourceLimitation",
-	UnauthorizedRequestingNetwork:  "UnauthorizedRequestingNetwork",
-	UnauthorizedLCSClient:          "UnauthorizedLCSClient",
-	PositionMethodFailure:          "PositionMethodFailure",
-	UnknownAlphabet:                "UnknownAlphabet",
-	UssdBusy:                       "UssdBusy",
-	InformationNotAvailable:        "InformationNotAvailable",
-	AtmNotAllowed:                  "AtmNotAllowed",
-	MmEventNotSupported:            "MmEventNotSupported",
-	AtsiNotAllowed:                 "AtsiNotAllowed",
-	NumberOfPWAttemptsViolation:    "NumberOfPWAttemptsViolation",
-	NumberChanged:                  "NumberChanged",
-	TargetCellOutsideGroupCallArea: "TargetCellOutsideGroupCallArea",
-	UnknownOrUnreachableLCSClient:  "UnknownOrUnreachableLCSClient",
-	SubsequentHandoverFailure:      "SubsequentHandoverFailure",
-	LongTermDenial:                 "LongTermDenial",
-	ShortTermDenial:                "ShortTermDenial",
-	IncompatibleTerminal:           "IncompatibleTerminal",
+	ErrorUnknownSubscriber:              "UnknownSubscriber",
+	ErrorUnknownMSC:                     "UnknownMSC",
+	ErrorUnidentifiedSubscriber:         "UnidentifiedSubscriber",
+	ErrorAbsentSubscriberSM:             "AbsentSubscriberSM",
+	ErrorUnknownEquipment:               "UnknownEquipment",
+	ErrorRoamingNotAllowed:              "RoamingNotAllowed",
+	ErrorIllegalSubscriber:              "IllegalSubscriber",
+	ErrorBearerServiceNotProvisioned:    "BearerServiceNotProvisioned",
+	ErrorTeleserviceNotProvisioned:      "TeleserviceNotProvisioned",
+	ErrorIllegalEquipment:               "IllegalEquipment",
+	ErrorCallBarred:                     "CallBarred",
+	ErrorForwardingViolation:            "ForwardingViolation",
+	ErrorCugReject:                      "CugReject",
+	ErrorIllegalSSOperation:             "IllegalSSOperation",
+	ErrorSsErrorStatus:                  "SsErrorStatus",
+	ErrorSsNotAvailable:                 "SsNotAvailable",
+	ErrorSsSubscriptionViolation:        "SsSubscriptionViolation",
+	ErrorSsIncompatibility:              "SsIncompatibility",
+	ErrorFacilityNotSupported:           "FacilityNotSupported",
+	ErrorOngoingGroupCall:               "OngoingGroupCall",
+	ErrorNoHandoverNumberAvailable:      "NoHandoverNumberAvailable",
+	ErrorAbsentSubscriber:               "AbsentSubscriber",
+	ErrorSubscriberBusyForMTSMS:         "SubscriberBusyForMTSMS",
+	ErrorSmDeliveryFailure:              "SmDeliveryFailure",
+	ErrorMessageWaitingListFull:         "MessageWaitingListFull",
+	ErrorSystemFailure:                  "SystemFailure",
+	ErrorDataMissing:                    "DataMissing",
+	ErrorUnexpectedDataValue:            "UnexpectedDataValue",
+	ErrorPwRegistrationFailure:          "PwRegistrationFailure",
+	ErrorNegativePWCheck:                "NegativePWCheck",
+	ErrorNoRoamingNumberAvailable:       "NoRoamingNumberAvailable",
+	ErrorBusySubscriber:                 "BusySubscriber",
+	ErrorNoSubscriberReply:              "NoSubscriberReply",
+	ErrorForwardingFailed:               "ForwardingFailed",
+	ErrorOrNotAllowed:                   "OrNotAllowed",
+	ErrorAtiNotAllowed:                  "AtiNotAllowed",
+	ErrorNoGroupCallNumberAvailable:     "NoGroupCallNumberAvailable",
+	ErrorResourceLimitation:             "ResourceLimitation",
+	ErrorUnauthorizedRequestingNetwork:  "UnauthorizedRequestingNetwork",
+	ErrorUnauthorizedLCSClient:          "UnauthorizedLCSClient",
+	ErrorPositionMethodFailure:          "PositionMethodFailure",
+	ErrorUnknownAlphabet:                "UnknownAlphabet",
+	ErrorUssdBusy:                       "UssdBusy",
+	ErrorInformationNotAvailable:        "InformationNotAvailable",
+	ErrorAtmNotAllowed:                  "AtmNotAllowed",
+	ErrorMmEventNotSupported:            "MmEventNotSupported",
+	ErrorAtsiNotAllowed:                 "AtsiNotAllowed",
+	ErrorNumberOfPWAttemptsViolation:    "NumberOfPWAttemptsViolation",
+	ErrorNumberChanged:                  "NumberChanged",
+	ErrorTargetCellOutsideGroupCallArea: "TargetCellOutsideGroupCallArea",
+	ErrorUnknownOrUnreachableLCSClient:  "UnknownOrUnreachableLCSClient",
+	ErrorSubsequentHandoverFailure:      "SubsequentHandoverFailure",
+	ErrorLongTermDenial:                 "LongTermDenial",
+	ErrorShortTermDenial:                "ShortTermDenial",
+	ErrorIncompatibleTerminal:           "IncompatibleTerminal",
 }
 
 // GetErrorString converts an error value to its string representation.
