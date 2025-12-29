@@ -4,15 +4,15 @@ import (
 	"encoding/asn1"
 	"fmt"
 
+	"github.com/gomaja/go-asn1utils"
 	"github.com/gomaja/go-gsmmap/asn1mapmodel"
-	tcapUtils "github.com/gomaja/go-tcap/utils"
 	"github.com/warthog618/sms"
 )
 
 // ParseSriSm take a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -199,7 +199,7 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 
 // ParseUpdateLocation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateLocation(dataIE []byte) (*UpdateLocation, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -296,7 +296,7 @@ func convertAsn1ToVlrCapability(asn1VlrCap *asn1mapmodel.VlrCapability) *VlrCapa
 
 // ParseUpdateGprsLocation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateGprsLocation(dataIE []byte) (*UpdateGprsLocation, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -377,7 +377,7 @@ func convertAsn1ToSGSNCapability(asn1SGSNCap *asn1mapmodel.SGSNCapability) *SGSN
 
 // ParseUpdateLocationRes takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateLocationRes(dataIE []byte) (*UpdateLocationRes, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -407,7 +407,7 @@ func ParseUpdateLocationResDER(dataIE []byte) (*UpdateLocationRes, []byte, error
 
 // ParseUpdateGprsLocationRes takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateGprsLocationRes(dataIE []byte) (*UpdateGprsLocationRes, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
