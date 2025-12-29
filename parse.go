@@ -74,7 +74,7 @@ func ParseSriSmResp(dataIE []byte) (*SriSmResp, []byte, error) {
 func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	var mtFsmArg asn1mapmodel.MTForwardSMArg
 
-	rest, err := asn1.Unmarshal(dataIE, &mtFsmArg)
+	_, err := asn1.Unmarshal(dataIE, &mtFsmArg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateForwardSM: %v", err)
 	}
@@ -87,7 +87,7 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpDaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
+	_, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpDa: %v", err)
 	}
@@ -100,7 +100,7 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpOaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
+	rest, err := asn1.Unmarshal(smRpOaBytes, &smRpOa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
 	}
@@ -140,7 +140,7 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 	var moFsmArg asn1mapmodel.MOForwardSMArg
 
-	rest, err := asn1.Unmarshal(dataIE, &moFsmArg)
+	_, err := asn1.Unmarshal(dataIE, &moFsmArg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM: %v", err)
 	}
@@ -153,7 +153,7 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpDaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
+	_, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpDa: %v", err)
 	}
@@ -166,7 +166,7 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpOaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
+	rest, err := asn1.Unmarshal(smRpOaBytes, &smRpOa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
 	}
