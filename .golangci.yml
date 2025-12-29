@@ -1,7 +1,12 @@
 version: "2"
 
 linters:
-  default: standard
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - revive
+    - ineffassign
   disable:
     # Covered by SonarCloud - code smells
     - gocyclo        # cyclomatic complexity
@@ -18,9 +23,6 @@ linters:
     # Covered by SonarCloud - security
     - gosec          # security issues
 
-    # Covered by SonarCloud - bugs
-    - ineffassign    # ineffectual assignments
-
   settings:
     revive:
       rules:
@@ -29,6 +31,9 @@ linters:
           disabled: true
         # Disable exported comment requirement
         - name: exported
+          disabled: true
+        # Disable var-declaration (zero value initialization is often clearer)
+        - name: var-declaration
           disabled: true
 
     staticcheck:

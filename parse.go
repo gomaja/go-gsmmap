@@ -4,15 +4,15 @@ import (
 	"encoding/asn1"
 	"fmt"
 
+	"github.com/gomaja/go-asn1utils"
 	"github.com/gomaja/go-gsmmap/asn1mapmodel"
-	tcapUtils "github.com/gomaja/go-tcap/utils"
 	"github.com/warthog618/sms"
 )
 
-// ParseSriSm take a complete bytes IE with any ASN1 encoding (DER and non-DER)
+// ParseSriSm takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -20,7 +20,7 @@ func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 	return ParseSriSmDER(derBytes)
 }
 
-// ParseSriSmDER take a complete bytes IE with DER ASN1 encoding
+// ParseSriSmDER takes a complete bytes IE with DER ASN1 encoding
 func ParseSriSmDER(dataIE []byte) (*SriSm, []byte, error) {
 	var routingInfo asn1mapmodel.RoutingInfoForSMArg
 
@@ -70,11 +70,11 @@ func ParseSriSmResp(dataIE []byte) (*SriSmResp, []byte, error) {
 	return &sriSmResp, rest, nil
 }
 
-// ParseMtFsm take a complete bytes IE
+// ParseMtFsm takes a complete bytes IE
 func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	var mtFsmArg asn1mapmodel.MTForwardSMArg
 
-	rest, err := asn1.Unmarshal(dataIE, &mtFsmArg)
+	_, err := asn1.Unmarshal(dataIE, &mtFsmArg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateForwardSM: %v", err)
 	}
@@ -87,7 +87,7 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpDaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
+	_, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpDa: %v", err)
 	}
@@ -100,7 +100,7 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpOaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
+	rest, err := asn1.Unmarshal(smRpOaBytes, &smRpOa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
 	}
@@ -136,11 +136,11 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	return &mtFsm, rest, nil
 }
 
-// ParseMoFsm take a complete bytes IE
+// ParseMoFsm takes a complete bytes IE
 func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 	var moFsmArg asn1mapmodel.MOForwardSMArg
 
-	rest, err := asn1.Unmarshal(dataIE, &moFsmArg)
+	_, err := asn1.Unmarshal(dataIE, &moFsmArg)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM: %v", err)
 	}
@@ -153,7 +153,7 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpDaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
+	_, err = asn1.Unmarshal(smRpDaBytes, &smRpDa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpDa: %v", err)
 	}
@@ -166,7 +166,7 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 		return nil, nil, fmt.Errorf("failed to marshal smRpOaByteString: %w", err)
 	}
 
-	rest, err = asn1.Unmarshal(smRpOaBytes, &smRpOa)
+	rest, err := asn1.Unmarshal(smRpOaBytes, &smRpOa)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to decode ASN.1 CreateMoForwardSM smRpOa: %v", err)
 	}
@@ -199,7 +199,7 @@ func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 
 // ParseUpdateLocation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateLocation(dataIE []byte) (*UpdateLocation, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -296,7 +296,7 @@ func convertAsn1ToVlrCapability(asn1VlrCap *asn1mapmodel.VlrCapability) *VlrCapa
 
 // ParseUpdateGprsLocation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateGprsLocation(dataIE []byte) (*UpdateGprsLocation, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -377,7 +377,7 @@ func convertAsn1ToSGSNCapability(asn1SGSNCap *asn1mapmodel.SGSNCapability) *SGSN
 
 // ParseUpdateLocationRes takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateLocationRes(dataIE []byte) (*UpdateLocationRes, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -407,7 +407,7 @@ func ParseUpdateLocationResDER(dataIE []byte) (*UpdateLocationRes, []byte, error
 
 // ParseUpdateGprsLocationRes takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseUpdateGprsLocationRes(dataIE []byte) (*UpdateGprsLocationRes, []byte, error) {
-	derBytes, err := tcapUtils.MakeDER(dataIE)
+	derBytes, err := asn1utils.MakeDER(dataIE)
 	if err != nil {
 		return nil, nil, err
 	}
