@@ -9,7 +9,7 @@ import (
 	"github.com/warthog618/sms"
 )
 
-// ParseSriSm take a complete bytes IE with any ASN1 encoding (DER and non-DER)
+// ParseSriSm takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 
 	derBytes, err := asn1utils.MakeDER(dataIE)
@@ -20,7 +20,7 @@ func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 	return ParseSriSmDER(derBytes)
 }
 
-// ParseSriSmDER take a complete bytes IE with DER ASN1 encoding
+// ParseSriSmDER takes a complete bytes IE with DER ASN1 encoding
 func ParseSriSmDER(dataIE []byte) (*SriSm, []byte, error) {
 	var routingInfo asn1mapmodel.RoutingInfoForSMArg
 
@@ -70,7 +70,7 @@ func ParseSriSmResp(dataIE []byte) (*SriSmResp, []byte, error) {
 	return &sriSmResp, rest, nil
 }
 
-// ParseMtFsm take a complete bytes IE
+// ParseMtFsm takes a complete bytes IE
 func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	var mtFsmArg asn1mapmodel.MTForwardSMArg
 
@@ -136,7 +136,7 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 	return &mtFsm, rest, nil
 }
 
-// ParseMoFsm take a complete bytes IE
+// ParseMoFsm takes a complete bytes IE
 func ParseMoFsm(dataIE []byte) (*MoFsm, []byte, error) {
 	var moFsmArg asn1mapmodel.MOForwardSMArg
 
