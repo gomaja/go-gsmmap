@@ -4,6 +4,12 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/gomaja/go-gsmmap.svg)](https://pkg.go.dev/github.com/gomaja/go-gsmmap)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gomaja/go-gsmmap)](https://goreportcard.com/report/github.com/gomaja/go-gsmmap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/gomaja/go-gsmmap)](https://github.com/gomaja/go-gsmmap)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gomaja_go-gsmmap&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gomaja_go-gsmmap)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=gomaja_go-gsmmap&metric=coverage)](https://sonarcloud.io/summary/new_code?id=gomaja_go-gsmmap)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=gomaja_go-gsmmap&metric=bugs)](https://sonarcloud.io/summary/new_code?id=gomaja_go-gsmmap)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gomaja_go-gsmmap&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gomaja_go-gsmmap)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gomaja_go-gsmmap&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gomaja_go-gsmmap)
 
 A robust, lightweight implementation of the MAP (Mobile Application Part) protocol in Go.
 
