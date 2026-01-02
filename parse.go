@@ -9,6 +9,8 @@ import (
 	"github.com/warthog618/sms"
 )
 
+const errFailedToDecodeIMSI = "failed to decode IMSI: %w"
+
 // ParseSriSm takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
 func ParseSriSm(dataIE []byte) (*SriSm, []byte, error) {
 
@@ -59,7 +61,7 @@ func ParseSriSmResp(dataIE []byte) (*SriSmResp, []byte, error) {
 
 	sriSmResp.IMSI, imsiErr = routingInfoResp.GetImsiString()
 	if imsiErr != nil {
-		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+		return nil, nil, fmt.Errorf(errFailedToDecodeIMSI, imsiErr)
 	}
 
 	sriSmResp.LocationInfoWithLMSI.NetworkNodeNumber, nnnErr = routingInfoResp.GetNetworkNodeNumberString()
@@ -110,7 +112,7 @@ func ParseMtFsm(dataIE []byte) (*MtFsm, []byte, error) {
 
 	mtFsm.IMSI, imsiErr = smRpDa.GetImsiString()
 	if imsiErr != nil {
-		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+		return nil, nil, fmt.Errorf(errFailedToDecodeIMSI, imsiErr)
 	}
 
 	mtFsm.ServiceCentreAddressOA, scaErr = smRpOa.GetServiceCentreAddressOAString()
@@ -221,7 +223,7 @@ func ParseUpdateLocationDER(dataIE []byte) (*UpdateLocation, []byte, error) {
 
 	updLoc.IMSI, imsiErr = updLocArg.GetImsiString()
 	if imsiErr != nil {
-		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+		return nil, nil, fmt.Errorf(errFailedToDecodeIMSI, imsiErr)
 	}
 
 	updLoc.MSCNumber, mscErr = updLocArg.GetMSCNumberString()
@@ -318,7 +320,7 @@ func ParseUpdateGprsLocationDER(dataIE []byte) (*UpdateGprsLocation, []byte, err
 
 	updGprsLoc.IMSI, imsiErr = updGprsLocArg.GetImsiString()
 	if imsiErr != nil {
-		return nil, nil, fmt.Errorf("failed to decode IMSI: %w", imsiErr)
+		return nil, nil, fmt.Errorf(errFailedToDecodeIMSI, imsiErr)
 	}
 
 	updGprsLoc.SGSNNumber, sgsnNumErr = updGprsLocArg.GetSGSNNumberString()

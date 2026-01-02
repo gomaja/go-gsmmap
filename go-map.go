@@ -8,18 +8,18 @@ type SriSm struct {
 	MSISDN               string
 	SmRpPri              bool
 	ServiceCentreAddress string
-	// TODO: add optional fields if needed
+	// Add remaining optional fields if needed
 }
 
 type SriSmResp struct {
 	IMSI                 string
 	LocationInfoWithLMSI LocationInfoWithLMSI
-	// TODO: add optional fields if needed
+	// Add remaining optional fields if needed
 }
 
 type LocationInfoWithLMSI struct {
 	NetworkNodeNumber string
-	// TODO: add optional fields if needed
+	// Add remaining optional fields if needed
 }
 
 type MtFsm struct {
