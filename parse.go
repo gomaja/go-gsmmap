@@ -250,50 +250,56 @@ func convertAsn1ToVlrCapability(asn1VlrCap *asn1mapmodel.VlrCapability) *VlrCapa
 
 	// Convert SupportedCamelPhases from BitString
 	if asn1VlrCap.SupportedCamelPhases.BitLength > 0 {
-		camelPhases := &SupportedCamelPhases{}
-		bits := asn1VlrCap.SupportedCamelPhases
-
-		if bits.BitLength > asn1mapmodel.CamelPhase1 {
-			camelPhases.Phase1 = bits.At(asn1mapmodel.CamelPhase1) == 1
-		}
-		if bits.BitLength > asn1mapmodel.CamelPhase2 {
-			camelPhases.Phase2 = bits.At(asn1mapmodel.CamelPhase2) == 1
-		}
-		if bits.BitLength > asn1mapmodel.CamelPhase3 {
-			camelPhases.Phase3 = bits.At(asn1mapmodel.CamelPhase3) == 1
-		}
-		if bits.BitLength > asn1mapmodel.CamelPhase4 {
-			camelPhases.Phase4 = bits.At(asn1mapmodel.CamelPhase4) == 1
-		}
-
-		vlrCap.SupportedCamelPhases = camelPhases
+		vlrCap.SupportedCamelPhases = convertAsn1ToSupportedCamelPhases(asn1VlrCap.SupportedCamelPhases)
 	}
 
 	// Convert SupportedLCSCapabilitySets from BitString
 	if asn1VlrCap.SupportedLCSCapabilitySets.BitLength > 0 {
-		lcsCaps := &SupportedLCSCapabilitySets{}
-		bits := asn1VlrCap.SupportedLCSCapabilitySets
-
-		if bits.BitLength > asn1mapmodel.LCSCapabilitySet1 {
-			lcsCaps.LcsCapabilitySet1 = bits.At(asn1mapmodel.LCSCapabilitySet1) == 1
-		}
-		if bits.BitLength > asn1mapmodel.LCSCapabilitySet2 {
-			lcsCaps.LcsCapabilitySet2 = bits.At(asn1mapmodel.LCSCapabilitySet2) == 1
-		}
-		if bits.BitLength > asn1mapmodel.LCSCapabilitySet3 {
-			lcsCaps.LcsCapabilitySet3 = bits.At(asn1mapmodel.LCSCapabilitySet3) == 1
-		}
-		if bits.BitLength > asn1mapmodel.LCSCapabilitySet4 {
-			lcsCaps.LcsCapabilitySet4 = bits.At(asn1mapmodel.LCSCapabilitySet4) == 1
-		}
-		if bits.BitLength > asn1mapmodel.LCSCapabilitySet5 {
-			lcsCaps.LcsCapabilitySet5 = bits.At(asn1mapmodel.LCSCapabilitySet5) == 1
-		}
-
-		vlrCap.SupportedLCSCapabilitySets = lcsCaps
+		vlrCap.SupportedLCSCapabilitySets = convertAsn1ToSupportedLCSCapabilitySets(asn1VlrCap.SupportedLCSCapabilitySets)
 	}
 
 	return vlrCap
+}
+
+func convertAsn1ToSupportedCamelPhases(bits asn1.BitString) *SupportedCamelPhases {
+	camelPhases := &SupportedCamelPhases{}
+
+	if bits.BitLength > asn1mapmodel.CamelPhase1 {
+		camelPhases.Phase1 = bits.At(asn1mapmodel.CamelPhase1) == 1
+	}
+	if bits.BitLength > asn1mapmodel.CamelPhase2 {
+		camelPhases.Phase2 = bits.At(asn1mapmodel.CamelPhase2) == 1
+	}
+	if bits.BitLength > asn1mapmodel.CamelPhase3 {
+		camelPhases.Phase3 = bits.At(asn1mapmodel.CamelPhase3) == 1
+	}
+	if bits.BitLength > asn1mapmodel.CamelPhase4 {
+		camelPhases.Phase4 = bits.At(asn1mapmodel.CamelPhase4) == 1
+	}
+
+	return camelPhases
+}
+
+func convertAsn1ToSupportedLCSCapabilitySets(bits asn1.BitString) *SupportedLCSCapabilitySets {
+	lcsCaps := &SupportedLCSCapabilitySets{}
+
+	if bits.BitLength > asn1mapmodel.LCSCapabilitySet1 {
+		lcsCaps.LcsCapabilitySet1 = bits.At(asn1mapmodel.LCSCapabilitySet1) == 1
+	}
+	if bits.BitLength > asn1mapmodel.LCSCapabilitySet2 {
+		lcsCaps.LcsCapabilitySet2 = bits.At(asn1mapmodel.LCSCapabilitySet2) == 1
+	}
+	if bits.BitLength > asn1mapmodel.LCSCapabilitySet3 {
+		lcsCaps.LcsCapabilitySet3 = bits.At(asn1mapmodel.LCSCapabilitySet3) == 1
+	}
+	if bits.BitLength > asn1mapmodel.LCSCapabilitySet4 {
+		lcsCaps.LcsCapabilitySet4 = bits.At(asn1mapmodel.LCSCapabilitySet4) == 1
+	}
+	if bits.BitLength > asn1mapmodel.LCSCapabilitySet5 {
+		lcsCaps.LcsCapabilitySet5 = bits.At(asn1mapmodel.LCSCapabilitySet5) == 1
+	}
+
+	return lcsCaps
 }
 
 // ParseUpdateGprsLocation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
