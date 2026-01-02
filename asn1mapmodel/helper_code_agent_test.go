@@ -14,7 +14,10 @@ import (
 
 func TestAddressStringHelpers(t *testing.T) {
 	// Test EncodeAddressString and DecodeAddressString
-	digits, _ := utils.EncodeTBCDDigits("123456")
+	digits, err := utils.EncodeTBCDDigits("123456")
+	if err != nil {
+		t.Fatal(err)
+	}
 	ext := uint8(ExtensionNo)
 	nature := uint8(AddressNatureInternational)
 	plan := uint8(NumberingPlanISDN)
@@ -45,14 +48,23 @@ func TestAddressStringHelpers(t *testing.T) {
 
 func TestUpdateLocationArgHelpers(t *testing.T) {
 	imsiStr := "123456789012345"
-	imsiBytes, _ := utils.EncodeTBCDDigits(imsiStr)
+	imsiBytes, err := utils.EncodeTBCDDigits(imsiStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	mscStr := "9876543210"
-	mscBytes, _ := utils.EncodeTBCDDigits(mscStr)
+	mscBytes, err := utils.EncodeTBCDDigits(mscStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	mscAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, mscBytes)
 
 	vlrStr := "1122334455"
-	vlrBytes, _ := utils.EncodeTBCDDigits(vlrStr)
+	vlrBytes, err := utils.EncodeTBCDDigits(vlrStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	vlrAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, vlrBytes)
 
 	arg := &UpdateLocationArg{
@@ -76,14 +88,23 @@ func TestUpdateLocationArgHelpers(t *testing.T) {
 
 func TestUpdateGprsLocationArgHelpers(t *testing.T) {
 	imsiStr := "123456789012345"
-	imsiBytes, _ := utils.EncodeTBCDDigits(imsiStr)
+	imsiBytes, err := utils.EncodeTBCDDigits(imsiStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	sgsnStr := "9876543210"
-	sgsnBytes, _ := utils.EncodeTBCDDigits(sgsnStr)
+	sgsnBytes, err := utils.EncodeTBCDDigits(sgsnStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	sgsnAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, sgsnBytes)
 
 	sgsnIp := "192.168.1.1"
-	sgsnIpBytes, _ := utils.BuildGSNAddress(sgsnIp)
+	sgsnIpBytes, err := utils.BuildGSNAddress(sgsnIp)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	arg := &UpdateGprsLocationArg{
 		IMSI:        IMSI(imsiBytes),
@@ -106,7 +127,10 @@ func TestUpdateGprsLocationArgHelpers(t *testing.T) {
 
 func TestUpdateLocationResHelpers(t *testing.T) {
 	hlrStr := "5566778899"
-	hlrBytes, _ := utils.EncodeTBCDDigits(hlrStr)
+	hlrBytes, err := utils.EncodeTBCDDigits(hlrStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	hlrAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, hlrBytes)
 
 	res := &UpdateLocationRes{
@@ -120,7 +144,10 @@ func TestUpdateLocationResHelpers(t *testing.T) {
 
 func TestUpdateGprsLocationResHelpers(t *testing.T) {
 	hlrStr := "9988776655"
-	hlrBytes, _ := utils.EncodeTBCDDigits(hlrStr)
+	hlrBytes, err := utils.EncodeTBCDDigits(hlrStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	hlrAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, hlrBytes)
 
 	res := &UpdateGprsLocationRes{
@@ -149,11 +176,17 @@ func TestGetErrorString(t *testing.T) {
 
 func TestRoutingInfoForSMHelpers(t *testing.T) {
 	msisdnStr := "1234567890"
-	msisdnBytes, _ := utils.EncodeTBCDDigits(msisdnStr)
+	msisdnBytes, err := utils.EncodeTBCDDigits(msisdnStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	msisdnAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, msisdnBytes)
 
 	scaStr := "0987654321"
-	scaBytes, _ := utils.EncodeTBCDDigits(scaStr)
+	scaBytes, err := utils.EncodeTBCDDigits(scaStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	scaAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, scaBytes)
 
 	arg := &RoutingInfoForSMArg{
@@ -170,10 +203,16 @@ func TestRoutingInfoForSMHelpers(t *testing.T) {
 	}
 
 	imsiStr := "1122334455"
-	imsiBytes, _ := utils.EncodeTBCDDigits(imsiStr)
+	imsiBytes, err := utils.EncodeTBCDDigits(imsiStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	nnnStr := "5544332211"
-	nnnBytes, _ := utils.EncodeTBCDDigits(nnnStr)
+	nnnBytes, err := utils.EncodeTBCDDigits(nnnStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	nnnAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, nnnBytes)
 
 	res := &RoutingInfoForSMRes{
@@ -195,10 +234,16 @@ func TestRoutingInfoForSMHelpers(t *testing.T) {
 func TestSMHelpers(t *testing.T) {
 	// SMRPDA
 	imsiStr := "9988776655"
-	imsiBytes, _ := utils.EncodeTBCDDigits(imsiStr)
+	imsiBytes, err := utils.EncodeTBCDDigits(imsiStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	scdaStr := "5566778899"
-	scdaBytes, _ := utils.EncodeTBCDDigits(scdaStr)
+	scdaBytes, err := utils.EncodeTBCDDigits(scdaStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	scdaAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, scdaBytes)
 
 	da := &SMRPDA{
@@ -216,11 +261,17 @@ func TestSMHelpers(t *testing.T) {
 
 	// SMRPOA
 	msisdnStr := "4433221100"
-	msisdnBytes, _ := utils.EncodeTBCDDigits(msisdnStr)
+	msisdnBytes, err := utils.EncodeTBCDDigits(msisdnStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	msisdnAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, msisdnBytes)
 
 	scoaStr := "0011223344"
-	scoaBytes, _ := utils.EncodeTBCDDigits(scoaStr)
+	scoaBytes, err := utils.EncodeTBCDDigits(scoaStr)
+	if err != nil {
+		t.Fatal(err)
+	}
 	scoaAddr := EncodeAddressString(ExtensionNo, AddressNatureInternational, NumberingPlanISDN, scoaBytes)
 
 	oa := &SMRPOA{

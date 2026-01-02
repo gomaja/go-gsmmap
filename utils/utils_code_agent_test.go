@@ -93,6 +93,13 @@ func TestGSNAddress(t *testing.T) {
 			if err != nil {
 				t.Fatalf("BuildGSNAddress failed: %v", err)
 			}
+
+			// Verify address type
+			gotType := int((encoded[0] >> 6) & 0x03)
+			if gotType != c.wantType {
+				t.Errorf("got address type %d, want %d", gotType, c.wantType)
+			}
+
 			encodedHex := hex.EncodeToString(encoded)
 			if encodedHex != c.encodedHex {
 				t.Errorf("got %s, want %s", encodedHex, c.encodedHex)
