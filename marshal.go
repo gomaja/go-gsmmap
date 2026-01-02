@@ -8,6 +8,8 @@ import (
 	"github.com/gomaja/go-gsmmap/utils"
 )
 
+const errFailedToEncodeIMSI = "failed to encode IMSI: %w"
+
 func (sriSm *SriSm) Marshal() ([]byte, error) {
 	// Create RoutingInfoForSMArg structure from SriSm
 	routingInfo, err := convertSriSmToRoutingInfoForSMArg(sriSm)
@@ -67,7 +69,7 @@ func convertSriSmToRoutingInfoForSMArg(sriSm *SriSm) (asn1mapmodel.RoutingInfoFo
 	//if sriSm.IMSI != "" {
 	//	imsiTBCDbytes, err := utils.EncodeTBCDDigits(sriSm.IMSI)
 	//	if err != nil {
-	//		return routingInfo, fmt.Errorf("failed to encode IMSI: %w", err)
+	//		return routingInfo, fmt.Errorf(errFailedToEncodeIMSI, err)
 	//	}
 	//	routingInfo.IMSI = asn1mapmodel.IMSI(imsiTBCDbytes)
 	//}
@@ -98,7 +100,7 @@ func convertSriSmRespToRoutingInfoForSMRes(sriSm *SriSmResp) (asn1mapmodel.Routi
 	// Encode IMSI from TBCD format
 	imsiTBCDbytes, err := utils.EncodeTBCDDigits(sriSm.IMSI)
 	if err != nil {
-		return routingInfoResp, fmt.Errorf("failed to encode IMSI: %w", err)
+		return routingInfoResp, fmt.Errorf(errFailedToEncodeIMSI, err)
 	}
 
 	// Encode MSC number from TBCD format
@@ -153,7 +155,7 @@ func convertMtFsmToMTForwardSMArg(mtFsm *MtFsm) (asn1mapmodel.MTForwardSMArg, er
 	// Encode IMSI
 	imsiTBCDbytes, err := utils.EncodeTBCDDigits(mtFsm.IMSI)
 	if err != nil {
-		return mtFsmArg, fmt.Errorf("failed to encode IMSI: %w", err)
+		return mtFsmArg, fmt.Errorf(errFailedToEncodeIMSI, err)
 	}
 
 	// Encode ServiceCenterAddressOA
@@ -316,7 +318,7 @@ func convertUpdateLocationToUpdateLocationArg(updLoc *UpdateLocation) (asn1mapmo
 	// Encode IMSI from TBCD format
 	imsiTBCDbytes, err := utils.EncodeTBCDDigits(updLoc.IMSI)
 	if err != nil {
-		return updLocArg, fmt.Errorf("failed to encode IMSI: %w", err)
+		return updLocArg, fmt.Errorf(errFailedToEncodeIMSI, err)
 	}
 
 	// Encode MSCNumber from TBCD format
@@ -463,7 +465,7 @@ func convertUpdateGprsLocationToUpdateGprsLocationArg(updGprsLoc *UpdateGprsLoca
 	// Encode IMSI from TBCD format
 	imsiTBCDbytes, err := utils.EncodeTBCDDigits(updGprsLoc.IMSI)
 	if err != nil {
-		return updGprsLocArg, fmt.Errorf("failed to encode IMSI: %w", err)
+		return updGprsLocArg, fmt.Errorf(errFailedToEncodeIMSI, err)
 	}
 
 	// Encode SGSNNumber from TBCD format
