@@ -215,3 +215,63 @@ func TestMarshalErrors(t *testing.T) {
 		}
 	})
 }
+
+func TestUpdateLocationMarshal_WithVlrCapability(t *testing.T) {
+	ul := &UpdateLocation{
+		IMSI:      "123456789012345",
+		MSCNumber: "12345",
+		VLRNumber: "67890",
+		VlrCapability: &VlrCapability{
+			SupportedCamelPhases: &SupportedCamelPhases{
+				Phase1: true,
+				Phase2: false,
+				Phase3: true,
+				Phase4: false,
+			},
+			SupportedLCSCapabilitySets: &SupportedLCSCapabilitySets{
+				LcsCapabilitySet1: true,
+				LcsCapabilitySet2: false,
+				LcsCapabilitySet3: false,
+				LcsCapabilitySet4: false,
+				LcsCapabilitySet5: true,
+			},
+		},
+	}
+
+	encoded, err := ul.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal UpdateLocation: %v", err)
+	}
+
+	parsed, _, err := ParseUpdateLocation(encoded)
+	if err != nil {
+		t.Fatalf("Failed to parse UpdateLocation: %v", err)
+	}
+
+	if parsed.VlrCapability == nil {
+		t.Fatal("VlrCapability is nil in parsed struct")
+	}
+
+	if parsed.VlrCapability.SupportedCamelPhases == nil {
+		t.Fatal("SupportedCamelPhases is nil in parsed struct")
+	}
+	if !parsed.VlrCapability.SupportedCamelPhases.Phase1 {
+		t.Error("Phase1 should be true")
+	}
+	if parsed.VlrCapability.SupportedCamelPhases.Phase2 {
+		t.Error("Phase2 should be false")
+	}
+	if !parsed.VlrCapability.SupportedCamelPhases.Phase3 {
+		t.Error("Phase3 should be true")
+	}
+
+	if parsed.VlrCapability.SupportedLCSCapabilitySets == nil {
+		t.Fatal("SupportedLCSCapabilitySets is nil in parsed struct")
+	}
+	if !parsed.VlrCapability.SupportedLCSCapabilitySets.LcsCapabilitySet1 {
+		t.Error("LcsCapabilitySet1 should be true")
+	}
+	if !parsed.VlrCapability.SupportedLCSCapabilitySets.LcsCapabilitySet5 {
+		t.Error("LcsCapabilitySet5 should be true")
+	}
+}

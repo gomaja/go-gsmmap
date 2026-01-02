@@ -364,82 +364,86 @@ func convertVlrCapabilityToAsn1(vlrCap *VlrCapability) asn1mapmodel.VlrCapabilit
 	var asn1VlrCap asn1mapmodel.VlrCapability
 
 	// Convert SupportedCamelPhases to BitString
-	// SupportedCamelPhases ::= BIT STRING { phase1(0), phase2(1), phase3(2), phase4(3) } (SIZE 1..16)
 	if vlrCap.SupportedCamelPhases != nil {
-		camelPhases := vlrCap.SupportedCamelPhases
-
-		// Build the bit string from phase flags, tracking the highest bit position set
-		var byteVal byte
-		var bitLength int
-		if camelPhases.Phase1 {
-			byteVal |= 0x80 // bit 0 (MSB)
-			bitLength = 1
-		}
-		if camelPhases.Phase2 {
-			byteVal |= 0x40 // bit 1
-			bitLength = 2
-		}
-		if camelPhases.Phase3 {
-			byteVal |= 0x20 // bit 2
-			bitLength = 3
-		}
-		if camelPhases.Phase4 {
-			byteVal |= 0x10 // bit 3
-			bitLength = 4
-		}
-
-		// If no phases set but struct exists, use minimum length of 1
-		if bitLength == 0 {
-			bitLength = 1
-		}
-
-		asn1VlrCap.SupportedCamelPhases = asn1.BitString{
-			Bytes:     []byte{byteVal},
-			BitLength: bitLength,
-		}
+		asn1VlrCap.SupportedCamelPhases = convertSupportedCamelPhasesToAsn1(vlrCap.SupportedCamelPhases)
 	}
 
 	// Convert SupportedLCSCapabilitySets to BitString
-	// SupportedLCS-CapabilitySets ::= BIT STRING { lcsCapabilitySet1(0), ..., lcsCapabilitySet5(4) } (SIZE 2..16)
 	if vlrCap.SupportedLCSCapabilitySets != nil {
-		lcsCaps := vlrCap.SupportedLCSCapabilitySets
-
-		// Build the bit string from LCS capability flags, tracking the highest bit position set
-		var byteVal byte
-		var bitLength int
-		if lcsCaps.LcsCapabilitySet1 {
-			byteVal |= 0x80 // bit 0 (MSB)
-			bitLength = 1
-		}
-		if lcsCaps.LcsCapabilitySet2 {
-			byteVal |= 0x40 // bit 1
-			bitLength = 2
-		}
-		if lcsCaps.LcsCapabilitySet3 {
-			byteVal |= 0x20 // bit 2
-			bitLength = 3
-		}
-		if lcsCaps.LcsCapabilitySet4 {
-			byteVal |= 0x10 // bit 3
-			bitLength = 4
-		}
-		if lcsCaps.LcsCapabilitySet5 {
-			byteVal |= 0x08 // bit 4
-			bitLength = 5
-		}
-
-		// If no sets set but struct exists, use minimum length of 2 per spec
-		if bitLength == 0 {
-			bitLength = 2
-		}
-
-		asn1VlrCap.SupportedLCSCapabilitySets = asn1.BitString{
-			Bytes:     []byte{byteVal},
-			BitLength: bitLength,
-		}
+		asn1VlrCap.SupportedLCSCapabilitySets = convertSupportedLCSCapabilitySetsToAsn1(vlrCap.SupportedLCSCapabilitySets)
 	}
 
 	return asn1VlrCap
+}
+
+func convertSupportedCamelPhasesToAsn1(camelPhases *SupportedCamelPhases) asn1.BitString {
+	// SupportedCamelPhases ::= BIT STRING { phase1(0), phase2(1), phase3(2), phase4(3) } (SIZE 1..16)
+	// Build the bit string from phase flags, tracking the highest bit position set
+	var byteVal byte
+	var bitLength int
+	if camelPhases.Phase1 {
+		byteVal |= 0x80 // bit 0 (MSB)
+		bitLength = 1
+	}
+	if camelPhases.Phase2 {
+		byteVal |= 0x40 // bit 1
+		bitLength = 2
+	}
+	if camelPhases.Phase3 {
+		byteVal |= 0x20 // bit 2
+		bitLength = 3
+	}
+	if camelPhases.Phase4 {
+		byteVal |= 0x10 // bit 3
+		bitLength = 4
+	}
+
+	// If no phases set but struct exists, use minimum length of 1
+	if bitLength == 0 {
+		bitLength = 1
+	}
+
+	return asn1.BitString{
+		Bytes:     []byte{byteVal},
+		BitLength: bitLength,
+	}
+}
+
+func convertSupportedLCSCapabilitySetsToAsn1(lcsCaps *SupportedLCSCapabilitySets) asn1.BitString {
+	// SupportedLCS-CapabilitySets ::= BIT STRING { lcsCapabilitySet1(0), ..., lcsCapabilitySet5(4) } (SIZE 2..16)
+	// Build the bit string from LCS capability flags, tracking the highest bit position set
+	var byteVal byte
+	var bitLength int
+	if lcsCaps.LcsCapabilitySet1 {
+		byteVal |= 0x80 // bit 0 (MSB)
+		bitLength = 1
+	}
+	if lcsCaps.LcsCapabilitySet2 {
+		byteVal |= 0x40 // bit 1
+		bitLength = 2
+	}
+	if lcsCaps.LcsCapabilitySet3 {
+		byteVal |= 0x20 // bit 2
+		bitLength = 3
+	}
+	if lcsCaps.LcsCapabilitySet4 {
+		byteVal |= 0x10 // bit 3
+		bitLength = 4
+	}
+	if lcsCaps.LcsCapabilitySet5 {
+		byteVal |= 0x08 // bit 4
+		bitLength = 5
+	}
+
+	// If no sets set but struct exists, use minimum length of 2 per spec
+	if bitLength == 0 {
+		bitLength = 2
+	}
+
+	return asn1.BitString{
+		Bytes:     []byte{byteVal},
+		BitLength: bitLength,
+	}
 }
 
 func (updGprsLoc *UpdateGprsLocation) Marshal() ([]byte, error) {
