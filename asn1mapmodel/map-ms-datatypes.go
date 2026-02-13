@@ -227,3 +227,89 @@ func (updGprsLocRes *UpdateGprsLocationRes) GetHLRNumberString() (string, error)
 	_, _, _, Digits := DecodeAddressString(updGprsLocRes.HLRNumber)
 	return utils.DecodeTBCDDigits(Digits)
 }
+
+// RequestedInfo represents the ASN.1 SEQUENCE of request flags
+// RequestedInfo ::= SEQUENCE {
+// locationInformation	[0] NULL		OPTIONAL,
+// subscriberState	[1] NULL		OPTIONAL,
+// extensionContainer	[2] ExtensionContainer	OPTIONAL,
+// ...,
+// currentLocation	[3] NULL		OPTIONAL,
+// requestedDomain	[4] DomainType	OPTIONAL,
+// imei			[6] NULL		OPTIONAL,
+// ms-classmark	[5] NULL		OPTIONAL,
+// mnpRequestedInfo	[7] NULL 		OPTIONAL,
+// locationInformationEPS-Supported	[11] NULL 	OPTIONAL,
+// t-adsData		[8] NULL		OPTIONAL,
+// requestedNodes	[9] RequestedNodes	OPTIONAL,
+// servingNodeIndication	[10] NULL		OPTIONAL,
+// localTimeZoneRequest	[12] NULL		OPTIONAL
+// }
+//
+// --	currentLocation and locationInformationEPS-Supported shall be absent if
+// --	locationInformation is absent
+// --	t-adsData shall be absent in messages sent to the VLR
+// --	requestedNodes shall be absent if requestedDomain is "cs-Domain"
+// --	servingNodeIndication shall be absent if locationInformation is absent;
+// --	servingNodeIndication shall be absent if current location is present;
+// --	servingNodeIndication indicates by its presence that only the serving node's
+// --	address (MME-Name or SGSN-Number or VLR-Number) is requested.
+type RequestedInfo struct {
+	LocationInformation asn1.RawValue `asn1:"tag:0,optional"`
+	SubscriberState     asn1.RawValue `asn1:"tag:1,optional"`
+	//ExtensionContainer omitted (tag:2)
+	CurrentLocation                 asn1.RawValue  `asn1:"tag:3,optional"`
+	RequestedDomain                 DomainType     `asn1:"tag:4,optional,default:-1"`
+	IMEI                            asn1.RawValue  `asn1:"tag:6,optional"`
+	MsClassmark                     asn1.RawValue  `asn1:"tag:5,optional"`
+	MnpRequestedInfo                asn1.RawValue  `asn1:"tag:7,optional"`
+	LocationInformationEPSSupported asn1.RawValue  `asn1:"tag:11,optional"`
+	TAdsData                        asn1.RawValue  `asn1:"tag:8,optional"`
+	RequestedNodes                  RequestedNodes `asn1:"tag:9,optional"`
+	ServingNodeIndication           asn1.RawValue  `asn1:"tag:10,optional"`
+	LocalTimeZoneRequest            asn1.RawValue  `asn1:"tag:12,optional"`
+}
+
+// DomainType represents the domain type enumeration
+// DomainType ::= ENUMERATED {
+//
+//	cs-Domain   (0),
+//	ps-Domain   (1),
+//	...}
+//
+// -- exception handling:
+// -- reception of values > 1 shall be mapped to 'cs-Domain'
+type DomainType = asn1.Enumerated
+
+const (
+	CsDomain DomainType = 0
+	PsDomain DomainType = 1
+)
+
+// RequestedNodes bit positions
+// RequestedNodes ::= BIT STRING {
+//
+//	mme   (0),
+//	sgsn  (1)} (SIZE (1..8))
+//
+// -- Other bits than listed above shall be discarded.
+type RequestedNodes = asn1.BitString
+
+const (
+	RequestedNodeMME  = 0
+	RequestedNodeSGSN = 1
+)
+
+// AnyTimeInterrogationArg represents the ATI request
+// AnyTimeInterrogationArg ::= SEQUENCE {
+// subscriberIdentity	[0] SubscriberIdentity,
+// requestedInfo	[1] RequestedInfo,
+// gsmSCF-Address	[3] ISDN-AddressString,
+// extensionContainer	[2] ExtensionContainer	OPTIONAL,
+// ...}
+type AnyTimeInterrogationArg struct {
+	SubscriberIdentity asn1.RawValue     `asn1:"tag:0"` // CHOICE wrapped in context-specific tag
+	RequestedInfo      RequestedInfo     `asn1:"tag:1"`
+	GsmSCFAddress      ISDNAddressString `asn1:"tag:3"`
+	//ExtensionContainer omitted (tag:2)
+}

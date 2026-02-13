@@ -84,3 +84,48 @@ type UpdateLocationRes struct {
 type UpdateGprsLocationRes struct {
 	HLRNumber string
 }
+
+// DomainType represents the requested domain
+// DomainType ::= ENUMERATED { cs-Domain (0), ps-Domain (1), ...}
+type DomainType int
+
+const (
+	CsDomain DomainType = 0
+	PsDomain DomainType = 1
+)
+
+// RequestedNodes represents which nodes are requested
+// RequestedNodes ::= BIT STRING { mme (0), sgsn (1)} (SIZE (1..8))
+type RequestedNodes struct {
+	MME  bool
+	SGSN bool
+}
+
+// SubscriberIdentity represents the subscriber identity CHOICE — set exactly one
+type SubscriberIdentity struct {
+	IMSI   string // if identifying by IMSI
+	MSISDN string // if identifying by MSISDN
+}
+
+// RequestedInfo represents the requested information flags for ATI
+type RequestedInfo struct {
+	LocationInformation             bool
+	SubscriberState                 bool
+	CurrentLocation                 bool
+	RequestedDomain                 *DomainType // nil = absent
+	IMEI                            bool
+	MsClassmark                     bool
+	MnpRequestedInfo                bool
+	LocationInformationEPSSupported bool
+	TAdsData                        bool
+	RequestedNodes                  *RequestedNodes // nil = absent
+	ServingNodeIndication           bool
+	LocalTimeZoneRequest            bool
+}
+
+// AnyTimeInterrogation represents the public API for the ATI request
+type AnyTimeInterrogation struct {
+	SubscriberIdentity SubscriberIdentity
+	RequestedInfo      RequestedInfo
+	GsmSCFAddress      string // gsmSCF-Address (required)
+}

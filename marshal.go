@@ -629,3 +629,155 @@ func convertUpdateGprsLocationResToAsn1(updGprsLocRes *UpdateGprsLocationRes) (a
 
 	return result, nil
 }
+
+func (ati *AnyTimeInterrogation) Marshal() ([]byte, error) {
+	atiArg, err := convertAnyTimeInterrogationToArg(ati)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert AnyTimeInterrogation to AnyTimeInterrogationArg: %w", err)
+	}
+
+	dataIE, err := asn1.Marshal(atiArg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode ASN.1 AnyTimeInterrogation: %w", err)
+	}
+
+	return dataIE, nil
+}
+
+func convertAnyTimeInterrogationToArg(ati *AnyTimeInterrogation) (asn1mapmodel.AnyTimeInterrogationArg, error) {
+	var atiArg asn1mapmodel.AnyTimeInterrogationArg
+
+	// Validate: exactly one of IMSI/MSISDN must be set
+	if ati.SubscriberIdentity.IMSI == "" && ati.SubscriberIdentity.MSISDN == "" {
+		return atiArg, fmt.Errorf("subscriber identity required: set either IMSI or MSISDN")
+	}
+	if ati.SubscriberIdentity.IMSI != "" && ati.SubscriberIdentity.MSISDN != "" {
+		return atiArg, fmt.Errorf("subscriber identity ambiguous: set either IMSI or MSISDN, not both")
+	}
+
+	// Encode SubscriberIdentity CHOICE
+	var subId asn1mapmodel.SubscriberIdentity
+	if ati.SubscriberIdentity.IMSI != "" {
+		imsiBytes, err := utils.EncodeTBCDDigits(ati.SubscriberIdentity.IMSI)
+		if err != nil {
+			return atiArg, fmt.Errorf(errFailedToEncodeIMSI, err)
+		}
+		subId.IMSI = imsiBytes
+	} else {
+		msisdnBytes, err := utils.EncodeTBCDDigits(ati.SubscriberIdentity.MSISDN)
+		if err != nil {
+			return atiArg, fmt.Errorf("failed to encode MSISDN: %w", err)
+		}
+		encodedMsisdn := asn1mapmodel.EncodeAddressString(
+			asn1mapmodel.ExtensionNo,
+			asn1mapmodel.AddressNatureInternational,
+			asn1mapmodel.NumberingPlanISDN,
+			msisdnBytes)
+		subId.MSISDN = encodedMsisdn
+	}
+
+	subIdBytes, err := stripTagAndLength(subId)
+	if err != nil {
+		return atiArg, fmt.Errorf("failed to process SubscriberIdentity: %w", err)
+	}
+	atiArg.SubscriberIdentity = asn1.RawValue{
+		Class:      asn1.ClassContextSpecific,
+		Tag:        0,
+		IsCompound: true,
+		Bytes:      subIdBytes,
+	}
+
+	// Build RequestedInfo
+	atiArg.RequestedInfo = buildRequestedInfo(&ati.RequestedInfo)
+
+	// Encode gsmSCF-Address
+	scfBytes, err := utils.EncodeTBCDDigits(ati.GsmSCFAddress)
+	if err != nil {
+		return atiArg, fmt.Errorf("failed to encode GsmSCFAddress: %w", err)
+	}
+	encodedScfAddress := asn1mapmodel.EncodeAddressString(
+		asn1mapmodel.ExtensionNo,
+		asn1mapmodel.AddressNatureInternational,
+		asn1mapmodel.NumberingPlanISDN,
+		scfBytes)
+	atiArg.GsmSCFAddress = encodedScfAddress
+
+	return atiArg, nil
+}
+
+func buildRequestedInfo(reqInfo *RequestedInfo) asn1mapmodel.RequestedInfo {
+	var ri asn1mapmodel.RequestedInfo
+
+	if reqInfo.LocationInformation {
+		ri.LocationInformation = contextNullRawValue(0)
+	}
+	if reqInfo.SubscriberState {
+		ri.SubscriberState = contextNullRawValue(1)
+	}
+	if reqInfo.CurrentLocation {
+		ri.CurrentLocation = contextNullRawValue(3)
+	}
+	if reqInfo.RequestedDomain != nil {
+		ri.RequestedDomain = asn1mapmodel.DomainType(*reqInfo.RequestedDomain)
+	} else {
+		ri.RequestedDomain = -1 // default value signals absent
+	}
+	if reqInfo.MsClassmark {
+		ri.MsClassmark = contextNullRawValue(5)
+	}
+	if reqInfo.IMEI {
+		ri.IMEI = contextNullRawValue(6)
+	}
+	if reqInfo.MnpRequestedInfo {
+		ri.MnpRequestedInfo = contextNullRawValue(7)
+	}
+	if reqInfo.TAdsData {
+		ri.TAdsData = contextNullRawValue(8)
+	}
+	if reqInfo.RequestedNodes != nil {
+		ri.RequestedNodes = convertRequestedNodesToAsn1(reqInfo.RequestedNodes)
+	}
+	if reqInfo.ServingNodeIndication {
+		ri.ServingNodeIndication = contextNullRawValue(10)
+	}
+	if reqInfo.LocationInformationEPSSupported {
+		ri.LocationInformationEPSSupported = contextNullRawValue(11)
+	}
+	if reqInfo.LocalTimeZoneRequest {
+		ri.LocalTimeZoneRequest = contextNullRawValue(12)
+	}
+
+	return ri
+}
+
+func contextNullRawValue(tag int) asn1.RawValue {
+	return asn1.RawValue{
+		Class: asn1.ClassContextSpecific,
+		Tag:   tag,
+		Bytes: []byte{},
+	}
+}
+
+func convertRequestedNodesToAsn1(nodes *RequestedNodes) asn1mapmodel.RequestedNodes {
+	// RequestedNodes ::= BIT STRING { mme (0), sgsn (1)} (SIZE (1..8))
+	var byteVal byte
+	var bitLength int
+
+	if nodes.MME {
+		byteVal |= 0x80 // bit 0 (MSB)
+		bitLength = 1
+	}
+	if nodes.SGSN {
+		byteVal |= 0x40 // bit 1
+		bitLength = 2
+	}
+
+	if bitLength == 0 {
+		bitLength = 1
+	}
+
+	return asn1mapmodel.RequestedNodes{
+		Bytes:     []byte{byteVal},
+		BitLength: bitLength,
+	}
+}
