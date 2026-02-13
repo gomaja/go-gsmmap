@@ -6,6 +6,7 @@ import (
 
 	"github.com/gomaja/go-asn1utils"
 	"github.com/gomaja/go-gsmmap/asn1mapmodel"
+	"github.com/gomaja/go-gsmmap/utils"
 	"github.com/warthog618/sms"
 )
 
@@ -441,4 +442,107 @@ func ParseUpdateGprsLocationResDER(dataIE []byte) (*UpdateGprsLocationRes, []byt
 	}
 
 	return &result, rest, nil
+}
+
+// ParseAnyTimeInterrogation takes a complete bytes IE with any ASN1 encoding (DER and non-DER)
+func ParseAnyTimeInterrogation(dataIE []byte) (*AnyTimeInterrogation, []byte, error) {
+	derBytes, err := asn1utils.MakeDER(dataIE)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ParseAnyTimeInterrogationDER(derBytes)
+}
+
+// ParseAnyTimeInterrogationDER takes a complete bytes IE with DER ASN1 encoding
+func ParseAnyTimeInterrogationDER(dataIE []byte) (*AnyTimeInterrogation, []byte, error) {
+	var atiArg asn1mapmodel.AnyTimeInterrogationArg
+
+	rest, err := asn1.Unmarshal(dataIE, &atiArg)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode ASN.1 AnyTimeInterrogationArg: %v", err)
+	}
+
+	var ati AnyTimeInterrogation
+
+	// Extract SubscriberIdentity from RawValue (CHOICE type)
+	// Wrap the inner bytes in a SEQUENCE so encoding/asn1 can unmarshal into the struct
+	var subId asn1mapmodel.SubscriberIdentity
+	subIdSeq := asn1.RawValue{Tag: asn1.TagSequence, IsCompound: true, Bytes: atiArg.SubscriberIdentity.Bytes}
+	subIdBytes, err := asn1.Marshal(subIdSeq)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to marshal SubscriberIdentity wrapper: %w", err)
+	}
+
+	_, err = asn1.Unmarshal(subIdBytes, &subId)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode SubscriberIdentity: %w", err)
+	}
+
+	// Determine which CHOICE field is populated
+	if len(subId.IMSI) > 0 {
+		ati.SubscriberIdentity.IMSI, err = subId.GetImsiString()
+		if err != nil {
+			return nil, nil, fmt.Errorf(errFailedToDecodeIMSI, err)
+		}
+	} else if len(subId.MSISDN) > 0 {
+		ati.SubscriberIdentity.MSISDN, err = subId.GetMsisdnString()
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to decode MSISDN: %w", err)
+		}
+	}
+
+	// Parse RequestedInfo flags
+	ri := atiArg.RequestedInfo
+	ati.RequestedInfo.LocationInformation = isRawValuePresent(ri.LocationInformation)
+	ati.RequestedInfo.SubscriberState = isRawValuePresent(ri.SubscriberState)
+	ati.RequestedInfo.CurrentLocation = isRawValuePresent(ri.CurrentLocation)
+	ati.RequestedInfo.MsClassmark = isRawValuePresent(ri.MsClassmark)
+	ati.RequestedInfo.IMEI = isRawValuePresent(ri.IMEI)
+	ati.RequestedInfo.MnpRequestedInfo = isRawValuePresent(ri.MnpRequestedInfo)
+	ati.RequestedInfo.TAdsData = isRawValuePresent(ri.TAdsData)
+	ati.RequestedInfo.ServingNodeIndication = isRawValuePresent(ri.ServingNodeIndication)
+	ati.RequestedInfo.LocationInformationEPSSupported = isRawValuePresent(ri.LocationInformationEPSSupported)
+	ati.RequestedInfo.LocalTimeZoneRequest = isRawValuePresent(ri.LocalTimeZoneRequest)
+
+	// Parse RequestedDomain (ENUMERATED, default:-1 means absent)
+	if ri.RequestedDomain != -1 {
+		domain := DomainType(ri.RequestedDomain)
+		// Per spec: reception of values > 1 shall be mapped to 'cs-Domain'
+		if domain > PsDomain {
+			domain = CsDomain
+		}
+		ati.RequestedInfo.RequestedDomain = &domain
+	}
+
+	// Parse RequestedNodes (BIT STRING)
+	if ri.RequestedNodes.BitLength > 0 {
+		ati.RequestedInfo.RequestedNodes = convertAsn1ToRequestedNodes(ri.RequestedNodes)
+	}
+
+	// Decode gsmSCF-Address
+	_, _, _, scfDigits := asn1mapmodel.DecodeAddressString(atiArg.GsmSCFAddress)
+	ati.GsmSCFAddress, err = utils.DecodeTBCDDigits(scfDigits)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode GsmSCFAddress: %w", err)
+	}
+
+	return &ati, rest, nil
+}
+
+func isRawValuePresent(rv asn1.RawValue) bool {
+	return len(rv.FullBytes) > 0
+}
+
+func convertAsn1ToRequestedNodes(requestedNodes asn1mapmodel.RequestedNodes) *RequestedNodes {
+	nodes := &RequestedNodes{}
+
+	if requestedNodes.BitLength > asn1mapmodel.RequestedNodeMME {
+		nodes.MME = requestedNodes.At(asn1mapmodel.RequestedNodeMME) == 1
+	}
+	if requestedNodes.BitLength > asn1mapmodel.RequestedNodeSGSN {
+		nodes.SGSN = requestedNodes.At(asn1mapmodel.RequestedNodeSGSN) == 1
+	}
+
+	return nodes
 }

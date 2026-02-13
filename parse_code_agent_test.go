@@ -4,3 +4,78 @@
 //
 
 package gsmmap
+
+import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+)
+
+func TestParseAnyTimeInterrogation_NonDER(t *testing.T) {
+	// Build a valid ATI, marshal it (DER), then parse using the non-DER entry point
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345"},
+		RequestedInfo:      RequestedInfo{LocationInformation: true, SubscriberState: true},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	// Parse using the non-DER entry (which calls MakeDER then ParseDER)
+	parsed, _, err := ParseAnyTimeInterrogation(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation (non-DER path): %v", err)
+	}
+
+	if diff := cmp.Diff(ati, parsed); diff != "" {
+		t.Errorf("Round-trip mismatch (-original +parsed):\n%s", diff)
+	}
+}
+
+func TestParseDomainType_MappedToCsDomain(t *testing.T) {
+	// Build a valid ATI with PsDomain, marshal it, then tamper the DomainType byte
+	// to a value > 1 to verify the parser maps it to CsDomain.
+	psDomain := PsDomain
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345"},
+		RequestedInfo:      RequestedInfo{LocationInformation: true, RequestedDomain: &psDomain},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	// Find and replace the DomainType value (0x01 for PsDomain) with 0x05 (invalid)
+	// The RequestedDomain is encoded as context-specific tag 4 with value.
+	// Look for pattern: 0x84 0x01 0x01 (tag=4 implicit, length=1, value=1)
+	found := false
+	for i := 0; i < len(marshaledBytes)-2; i++ {
+		if marshaledBytes[i] == 0x84 && marshaledBytes[i+1] == 0x01 && marshaledBytes[i+2] == 0x01 {
+			marshaledBytes[i+2] = 0x05 // set to invalid value > 1
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("Could not find DomainType byte to tamper")
+	}
+
+	// Parse the tampered bytes
+	parsed, _, err := ParseAnyTimeInterrogationDER(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation with invalid DomainType: %v", err)
+	}
+
+	// Verify the parsed domain is mapped to CsDomain
+	if parsed.RequestedInfo.RequestedDomain == nil {
+		t.Fatal("Expected RequestedDomain to be present")
+	}
+	if *parsed.RequestedInfo.RequestedDomain != CsDomain {
+		t.Errorf("Expected DomainType to be mapped to CsDomain (0), got %d", *parsed.RequestedInfo.RequestedDomain)
+	}
+}

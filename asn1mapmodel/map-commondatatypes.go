@@ -1,5 +1,7 @@
 package asn1mapmodel
 
+import "github.com/gomaja/go-gsmmap/utils"
+
 // ExtensionNo Constants representing the extension indicator
 const (
 	ExtensionNo = 0b10000000 // bit 8 set to 1, indicating no extension
@@ -84,3 +86,22 @@ type LMSI []byte
 // GSN-Address ::= OCTET STRING (SIZE (5..17))
 // Octets are coded according to TS 3GPP TS 23.003 [17]
 type GSNAddress []byte
+
+// SubscriberIdentity represents the ASN.1 CHOICE
+// SubscriberIdentity ::= CHOICE {
+//
+//	imsi    [0] IMSI,
+//	msisdn  [1] ISDN-AddressString }
+type SubscriberIdentity struct {
+	IMSI   IMSI              `asn1:"tag:0,optional"` // [0] IMSI
+	MSISDN ISDNAddressString `asn1:"tag:1,optional"` // [1] ISDN-AddressString
+}
+
+func (si *SubscriberIdentity) GetImsiString() (string, error) {
+	return utils.DecodeTBCDDigits(si.IMSI)
+}
+
+func (si *SubscriberIdentity) GetMsisdnString() (string, error) {
+	_, _, _, Digits := DecodeAddressString(si.MSISDN)
+	return utils.DecodeTBCDDigits(Digits)
+}

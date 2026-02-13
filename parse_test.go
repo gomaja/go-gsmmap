@@ -480,6 +480,45 @@ func TestParseUpdateGprsLocationRes(t *testing.T) {
 	}
 }
 
+func TestParseAnyTimeInterrogation(t *testing.T) {
+	tests := []struct {
+		name      string
+		hexString string
+	}{
+		{
+			name:      "MSISDN IMEI only",
+			hexString: "301aa00a810891881047245232f9a1028600830891889006040000f8",
+		},
+		{
+			name:      "MSISDN LocationInfo SubscriberState CurrentLocation PsDomain IMEI MsClassmark MnpRequestedInfo",
+			hexString: "3027a00a810891881086450541f4a10f800081008300840101860085008700830891889006040000f4",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			originalBytes, err := hex.DecodeString(tc.hexString)
+			if err != nil {
+				t.Fatalf("Failed to decode hex string: %v", err)
+			}
+
+			parsed, _, err := ParseAnyTimeInterrogation(originalBytes)
+			if err != nil {
+				t.Fatalf("Failed to parse AnyTimeInterrogation: %v", err)
+			}
+
+			marshaledBytes, err := parsed.Marshal()
+			if err != nil {
+				t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+			}
+
+			if diff := cmp.Diff(originalBytes, marshaledBytes); diff != "" {
+				t.Errorf("Round-trip bytes mismatch (-original +marshaled):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestParseUpdateLocation(t *testing.T) {
 	// Test cases
 	tests := []struct {

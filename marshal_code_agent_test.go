@@ -8,6 +8,8 @@ package gsmmap
 import (
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestMarshalErrors(t *testing.T) {
@@ -273,5 +275,176 @@ func TestUpdateLocationMarshal_WithVlrCapability(t *testing.T) {
 	}
 	if !parsed.VlrCapability.SupportedLCSCapabilitySets.LcsCapabilitySet5 {
 		t.Error("LcsCapabilitySet5 should be true")
+	}
+}
+
+func TestAnyTimeInterrogationRoundTrip_IMSI(t *testing.T) {
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345"},
+		RequestedInfo:      RequestedInfo{LocationInformation: true, SubscriberState: true},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	parsed, _, err := ParseAnyTimeInterrogationDER(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation: %v", err)
+	}
+
+	if diff := cmp.Diff(ati, parsed); diff != "" {
+		t.Errorf("Round-trip mismatch (-original +parsed):\n%s", diff)
+	}
+}
+
+func TestAnyTimeInterrogationRoundTrip_MSISDN(t *testing.T) {
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{MSISDN: "962260853818"},
+		RequestedInfo:      RequestedInfo{LocationInformation: true, CurrentLocation: true},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	parsed, _, err := ParseAnyTimeInterrogationDER(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation: %v", err)
+	}
+
+	if diff := cmp.Diff(ati, parsed); diff != "" {
+		t.Errorf("Round-trip mismatch (-original +parsed):\n%s", diff)
+	}
+}
+
+func TestAnyTimeInterrogationRoundTrip_AllFlags(t *testing.T) {
+	psDomain := PsDomain
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345"},
+		RequestedInfo: RequestedInfo{
+			LocationInformation:             true,
+			SubscriberState:                 true,
+			CurrentLocation:                 true,
+			RequestedDomain:                 &psDomain,
+			IMEI:                            true,
+			MsClassmark:                     true,
+			MnpRequestedInfo:                true,
+			LocationInformationEPSSupported: true,
+			TAdsData:                        true,
+			RequestedNodes:                  &RequestedNodes{MME: true, SGSN: true},
+			ServingNodeIndication:           true,
+			LocalTimeZoneRequest:            true,
+		},
+		GsmSCFAddress: "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	parsed, _, err := ParseAnyTimeInterrogationDER(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation: %v", err)
+	}
+
+	if diff := cmp.Diff(ati, parsed); diff != "" {
+		t.Errorf("Round-trip mismatch (-original +parsed):\n%s", diff)
+	}
+}
+
+func TestAnyTimeInterrogationRoundTrip_CsDomain(t *testing.T) {
+	csDomain := CsDomain
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345"},
+		RequestedInfo:      RequestedInfo{LocationInformation: true, RequestedDomain: &csDomain},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	parsed, _, err := ParseAnyTimeInterrogationDER(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation: %v", err)
+	}
+
+	if diff := cmp.Diff(ati, parsed); diff != "" {
+		t.Errorf("Round-trip mismatch (-original +parsed):\n%s", diff)
+	}
+}
+
+func TestAnyTimeInterrogationRoundTrip_RequestedNodesMMEOnly(t *testing.T) {
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345"},
+		RequestedInfo:      RequestedInfo{LocationInformation: true, RequestedNodes: &RequestedNodes{MME: true, SGSN: false}},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	parsed, _, err := ParseAnyTimeInterrogationDER(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation: %v", err)
+	}
+
+	if diff := cmp.Diff(ati, parsed); diff != "" {
+		t.Errorf("Round-trip mismatch (-original +parsed):\n%s", diff)
+	}
+}
+
+func TestAnyTimeInterrogationMarshal_ValidationError_NoIdentity(t *testing.T) {
+	ati := &AnyTimeInterrogation{
+		RequestedInfo: RequestedInfo{LocationInformation: true},
+		GsmSCFAddress: "1234567890",
+	}
+
+	_, err := ati.Marshal()
+	if err == nil {
+		t.Fatal("Expected error when neither IMSI nor MSISDN is set")
+	}
+}
+
+func TestAnyTimeInterrogationMarshal_ValidationError_BothIdentities(t *testing.T) {
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345", MSISDN: "962260853818"},
+		RequestedInfo:      RequestedInfo{LocationInformation: true},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	_, err := ati.Marshal()
+	if err == nil {
+		t.Fatal("Expected error when both IMSI and MSISDN are set")
+	}
+}
+
+func TestAnyTimeInterrogationRoundTrip_MinimalFlags(t *testing.T) {
+	ati := &AnyTimeInterrogation{
+		SubscriberIdentity: SubscriberIdentity{IMSI: "123456789012345"},
+		GsmSCFAddress:      "1234567890",
+	}
+
+	marshaledBytes, err := ati.Marshal()
+	if err != nil {
+		t.Fatalf("Failed to marshal AnyTimeInterrogation: %v", err)
+	}
+
+	parsed, _, err := ParseAnyTimeInterrogationDER(marshaledBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse AnyTimeInterrogation: %v", err)
+	}
+
+	if diff := cmp.Diff(ati, parsed); diff != "" {
+		t.Errorf("Round-trip mismatch (-original +parsed):\n%s", diff)
 	}
 }
